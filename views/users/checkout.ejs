@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Winkel - Free Bootstrap 4 Template by Colorlib</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css" />
+    <link rel="stylesheet" href="css/animate.css" />
+
+    <link rel="stylesheet" href="css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="css/owl.theme.default.min.css" />
+    <link rel="stylesheet" href="css/magnific-popup.css" />
+
+    <link rel="stylesheet" href="css/aos.css" />
+
+    <link rel="stylesheet" href="css/ionicons.min.css" />
+
+    <link rel="stylesheet" href="css/bootstrap-datepicker.css" />
+    <link rel="stylesheet" href="css/jquery.timepicker.css" />
+
+    <link rel="stylesheet" href="css/flaticon.css" />
+    <link rel="stylesheet" href="css/icomoon.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"
+      rel="stylesheet"
+    />
+    <style>
+      .billing-form,
+      .border.mt-5 {
+        width: 100%;
+      }
+
+      .border.mt-5 {
+        padding-left: 0;
+        padding-right: 0;
+      }
+    </style>
+  </head>
+  <body class="goto-here">
+    <!-- <div class="py-1 bg-black">
+    	<div class="container">
+    		<div class="row no-gutters d-flex align-items-start align-items-center px-md-0">
+	    		<div class="col-lg-12 d-block">
+		    		<div class="row d-flex">
+		    			<div class="col-md pr-4 d-flex topper align-items-center">
+					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-phone2"></span></div>
+						    <span class="text">+ 1235 2355 98</span>
+					    </div>
+					    <div class="col-md pr-4 d-flex topper align-items-center">
+					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
+						    <span class="text">youremail@email.com</span>
+					    </div>
+					    <div class="col-md-5 pr-4 d-flex topper align-items-center text-lg-right">
+						    <span class="text">3-5 Business days delivery &amp; Free Returns</span>
+					    </div>
+				    </div>
+			    </div>
+		    </div>
+		  </div>
+    </div> -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light"
+      id="ftco-navbar"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Winkel</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#ftco-nav"
+          aria-controls="ftco-nav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a href="index.html" class="nav-link">Home</a>
+            </li>
+            <li class="nav-item dropdown active">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="dropdown04"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Shop</a
+              >
+              <div class="dropdown-menu" aria-labelledby="dropdown04">
+                <a class="dropdown-item" href="shop.html">Shop</a>
+                <a class="dropdown-item" href="product-single.html"
+                  >Single Product</a
+                >
+                <a class="dropdown-item" href="cart.html">Cart</a>
+                <a class="dropdown-item" href="checkout.html">Checkout</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="about.html" class="nav-link">About</a>
+            </li>
+            <li class="nav-item">
+              <a href="blog.html" class="nav-link">Blog</a>
+            </li>
+            <li class="nav-item">
+              <a href="contact.html" class="nav-link">Contact</a>
+            </li>
+            <li class="nav-item cta cta-colored">
+              <a href="cart.html" class="nav-link"
+                ><span class="icon-shopping_cart"></span>[0]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- END nav -->
+
+    <div
+      class="hero-wrap hero-bread"
+      style="background-image: url('images/bg_6.jpg')"
+    >
+      <div class="container">
+        <div
+          class="row no-gutters slider-text align-items-center justify-content-center"
+        >
+          <div class="col-md-9 ftco-animate text-center">
+            <p class="breadcrumbs">
+              <span class="mr-2"><a href="/home">Home</a></span>
+              <span>Checkout</span>
+            </p>
+            <h1 class="mb-0 bread">Checkout</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="ftco-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 ftco-animate">
+            <h3 class="mb-4 billing-heading ml-4">Select Shipping Address</h3>
+
+            <% address.forEach(function(item, index) { %>
+            <div class="row my-3">
+              <div class="col-lg-12">
+                <form action="/checkout" method="post" class="billing-form">
+                  <div class="row border mx-3 shadow-sm">
+                    <div class="col-md-8">
+                      <div class="form-group">
+                        <label for="address" class="address-label ml-2">
+                          <input id="herowrap"
+                            type="radio"
+                            name="selectedAddress"
+                            value="<%= item._id %>"
+                          />
+                          <span class="radio-circle"
+                            ><%= item.firstname %> <%= item.lastname %></span
+                          >
+                          <strong></strong><br />
+                          <%= item.address %><br />
+                          <%= item.state %> <%= item.post %><br />
+                          <span class="mt-3"><%= item.mobile %></span><br />
+                          <a style="width: 100px;"
+                            href="/address/edit/<%= item._id %>"
+                            class="border border-dark mt-3 d-inline-block text-center rounded"
+                           st  >EDIT</a>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <% }); %>
+            <div class="row d-flex justify-content-center shadow-sm border mt-5 p-3">
+              <div class="col-md-8">
+                <a href="/address">
+                  <h5 style="color: #ffa45c">+ ADD New Address</h5>
+                </a>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-lg-4">
+              <p style="font-weight: bold;">Choose Payment Method</p>
+              <div class="row shadow">
+                <div class="col-lg-4" style="color: rgb(46, 45, 45); font-weight: 700; background-color: #f0f0f0;">
+                  <p>Recommended</p>
+                  <hr>
+                  <p><i class="fa-sharp fa-solid fa-money-bill-1-wave mx-2"></i>Cash On Delivery</p>
+                  <hr>
+                  <p>UPI</p>
+                </div>
+                <div class="col-lg-8 text-center">
+                  <label>
+                    <input id="cashOnDelivery" type="radio" name="paymentMethod" value="cash_on_delivery">
+                    Cash on Delivery
+                  </label>
+                </div>
+                <div class="col-lg-8 text-center">
+                  <label>
+                    <input id="onlinepayment" type="radio" name="paymentMethod" value="online_payment">
+                    UPI
+                  </label>
+                </div>
+              </div>
+          <div class="col-lg-4">
+            <% price.forEach(function(cartItem) { %>
+            <div
+              class="form-group border border-dark my-4 shadow-sm py-4"
+              style="height: auto"
+            >
+              <h5 class="mx-5 fs-b text-center" style="font-weight: bold">
+                Order Summary
+              </h5>
+              <span class="mx-5">PRICE Details (1 item)</span>
+              <div
+                class="d-flex justify-content-between align-items-center mx-5 mt-2"
+              >
+                <h6>Total MRP:</h6>
+                <span><%= cartItem.subtotal %></span>
+              </div>
+              <div
+                class="d-flex justify-content-between align-items-center mx-5 mt-2"
+              >
+                <h6>Discount On MRP:</h6>
+                <span><%= cartItem.subtotal * 0.1 %></span>
+              </div>
+              <div
+                class="d-flex justify-content-between align-items-center mx-5 mt-2"
+              >
+                <h6>Convenience fee:</h6>
+                <span><%= 5 %></span>
+              </div>
+              <hr class="mx-2" />
+              <div
+                class="d-flex justify-content-between align-items-center mx-5 mt-2"
+              >
+                <h6>Total Amount:</h6>
+                <span
+                  ><%= cartItem.subtotal - cartItem.subtotal * 0.1 + 5 %></span
+                >
+              </div>
+             <div class="text-center">
+                   <button id="continueBtn" class="btn btn-primary rounder-0">
+                    Place Order
+                  </button>
+              </div>           
+             </div>
+            <% }); %>
+          </div>
+        </div>
+        <!-- <form action="/payment" method="post" class="billing-form">
+          <p style="font-weight: bold;">Choose Payment Method</p>
+       
+          <div class="row shadow">
+              <div class="col-lg-4  " style="color: rgb(46, 45, 45); font-weight: 700; background-color: #f0f0f0;">
+                  <p>Recommended</p>
+                  <hr>
+                   <p><i class="fa-sharp fa-solid fa-money-bill-1-wave mx-2"></i>Cash On Delivery</p>
+                  <hr>
+                  <p>UPI</p>
+                 
+              </div>
+              <div class="col-lg-8 text-center">
+                <label>
+                  <input type="radio" name="paymentMethod" value="cash_on_delivery" checked >
+                  Cash_on_delivery
+                </label>
+                  <div class="net mt-5"><button type="submit" style="background-color: #ffa45c; border: none;" class="shadow-sm">PLACE ORDER</button>
+
+              </div>
+              </div>
+          </div>
+        </form> -->
+      </div>
+    </section>
+
+    <footer class="ftco-footer bg-light ftco-section">
+      <div class="container">
+        <div class="row">
+          <div class="mouse">
+            <a href="#" class="mouse-icon">
+              <div class="mouse-wheel">
+                <span class="ion-ios-arrow-up"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="row mb-5">
+          <div class="col-md">
+            <div class="ftco-footer-widget mb-4">
+              <h2 class="ftco-heading-2">Winkel</h2>
+              <p>
+                Far far away, behind the word mountains, far from the countries
+                Vokalia and Consonantia.
+              </p>
+              <ul
+                class="ftco-footer-social list-unstyled float-md-left float-lft mt-5"
+              >
+                <li class="ftco-animate">
+                  <a href="#"><span class="icon-twitter"></span></a>
+                </li>
+                <li class="ftco-animate">
+                  <a href="#"><span class="icon-facebook"></span></a>
+                </li>
+                <li class="ftco-animate">
+                  <a href="#"><span class="icon-instagram"></span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="ftco-footer-widget mb-4 ml-md-5">
+              <h2 class="ftco-heading-2">Menu</h2>
+              <ul class="list-unstyled">
+                <li><a href="#" class="py-2 d-block">Shop</a></li>
+                <li><a href="#" class="py-2 d-block">About</a></li>
+                <li><a href="#" class="py-2 d-block">Journal</a></li>
+                <li><a href="#" class="py-2 d-block">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="ftco-footer-widget mb-4">
+              <h2 class="ftco-heading-2">Help</h2>
+              <div class="d-flex">
+                <ul class="list-unstyled mr-l-5 pr-l-3 mr-4">
+                  <li>
+                    <a href="#" class="py-2 d-block">Shipping Information</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block">Returns &amp; Exchange</a>
+                  </li>
+                  <li>
+                    <a href="#" class="py-2 d-block">Terms &amp; Conditions</a>
+                  </li>
+                  <li><a href="#" class="py-2 d-block">Privacy Policy</a></li>
+                </ul>
+                <ul class="list-unstyled">
+                  <li><a href="#" class="py-2 d-block">FAQs</a></li>
+                  <li><a href="#" class="py-2 d-block">Contact</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="ftco-footer-widget mb-4">
+              <h2 class="ftco-heading-2">Have a Questions?</h2>
+              <div class="block-23 mb-3">
+                <ul>
+                  <li>
+                    <span class="icon icon-map-marker"></span
+                    ><span class="text"
+                      >203 Fake St. Mountain View, San Francisco, California,
+                      USA</span
+                    >
+                  </li>
+                  <li>
+                    <a href="#"
+                      ><span class="icon icon-phone"></span
+                      ><span class="text">+2 392 3929 210</span></a
+                    >
+                  </li>
+                  <li>
+                    <a href="#"
+                      ><span class="icon icon-envelope"></span
+                      ><span class="text">info@yourdomain.com</span></a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <p>
+              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+              Copyright &copy;
+              <script>
+                document.write(new Date().getFullYear());
+              </script>
+              All rights reserved | 
+              <i class="icon-heart color-danger" aria-hidden="true"></i> by
+              <a href="" target="_blank">Winkel Pvt lmtd</a>
+              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- loader -->
+    <div id="ftco-loader" class="show fullscreen">
+      <svg class="circular" width="48px" height="48px">
+        <circle
+          class="path-bg"
+          cx="24"
+          cy="24"
+          r="22"
+          fill="none"
+          stroke-width="4"
+          stroke="#eeeeee"
+        />
+        <circle
+          class="path"
+          cx="24"
+          cy="24"
+          r="22"
+          fill="none"
+          stroke-width="4"
+          stroke-miterlimit="10"
+          stroke="#F96D00"
+        />
+      </svg>
+    </div>
+
+    <script>
+      document.getElementById("continueBtn")
+        .addEventListener("click", function (e) {
+          const selectedAddress = document.querySelector(
+            'input[name="selectedAddress"]:checked'
+          );
+
+          const selectedmethod = document.querySelector(
+            'input[name="paymentMethod"]:checked'
+          );
+
+          if (!selectedAddress) {
+            e.preventDefault(); // Prevent the default button action (i.e., navigating to the payment page)
+            return alert("Please select a shipping address");
+          }
+
+          if (!selectedmethod) {
+            e.preventDefault(); // Prevent the default button action (i.e., navigating to the payment page)
+            return alert("Please select a payment method");
+          }
+
+          alert(selectedAddress.value)
+
+        fetch('/checkout', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ selectedItemId: selectedAddress.value, selectedmethod: selectedmethod.value })
+})
+    .then(function (response) {
+        // Check the response status
+        if (!response.ok) {
+            throw new Error('Error: ' + response.status);
+        }
+        // Parse the response as JSON
+        return response.json();
+    })
+    .then(function (data) {
+        // Handle the response from the backend
+        console.log(data);
+        if (data === 'Sucess') {
+            // Redirect or render the success page
+            window.location.href = '/success';
+        } else {
+            // Handle other responses or show error messages
+        }
+    })
+    .catch(function (error) {
+        // Handle any errors
+        console.log(error);
+    });
+
+
+          console.log(selectedAddress);
+        });
+
+  //       const cashOnDeliveryRadio = document.getElementById("cashOnDelivery");
+  // cashOnDeliveryRadio.addEventListener("change", function() {
+  //   const paymentMethod = "cash_on_delivery";
+
+  //   // Send an AJAX request to the backend
+  //   const xhr = new XMLHttpRequest();
+  //   xhr.open("POST", "/checkout");
+  //   xhr.setRequestHeader("Content-Type", "application/json");
+  //   xhr.onload = function() {
+  //     if (xhr.status === 200) {
+  //       // Success response from the backend
+  //       console.log("Payment method submitted successfully");
+  //       // Redirect or perform any other actions as needed
+  //     } else {
+  //       // Error response from the backend
+  //       console.log("Failed to submit payment method");
+  //     }
+  //   };
+  //   xhr.send(JSON.stringify({ paymentMethod }));
+  // });// const orderButton = document.querySelector(".order-button");
+  //     // orderButton.addEventListener("click", () => {
+      //   // const cartId = orderButton.dataset.cartId;
+      //   var addressInputs = document.getElementsByName("selectedAddress");
+      //   var selectedItemId;
+      //   for (var i = 0; i < addressInputs.length; i++) {
+      //     addressInputs[i].addEventListener("change", function () {
+      //       selectedItemId = this.value;
+      //     });
+      //   }
+
+      //   if (!selectedItemId) {
+      //     return alert("no address");
+      //   }
+
+      //   // Create an object with the data to send
+      //   const data = {
+      //     selectedItemId: selectedItemId,
+      //   };
+
+      //   alert(selectedItemId);
+
+      //   // Make an AJAX request or use fetch to send the data to the server
+      //   // fetch('/order', {
+      //   //   method: 'POST',
+      //   //   headers: {
+      //   //     'Content-Type': 'application/json'
+      //   //   },
+      //   //   body: JSON.stringify(data)
+      //   // })
+      //   // .then(response => response.json())
+      //   // .then(result => {
+      //   //   // Handle the response from the server
+      //   //   console.log(result);
+      //   // })
+      //   // .catch(error => {
+      //   //   // Handle any errors that occur during the request
+      //   //   console.error(error);
+      //   // });
+      // });
+
+      //   document.addEventListener('DOMContentLoaded', function() {
+      //   // Event listener for radio button change
+      //   var addressInputs = document.getElementsByName('selectedAddress');
+      //   for (var i = 0; i < addressInputs.length; i++) {
+      //     addressInputs[i].addEventListener('change', function() {
+      //       var selectedItemId = this.value;
+      //       alert(selectedItemId);
+
+            // Make a fetch request to the backend
+            // fetch('/order', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json'
+            //   },
+            //   body: JSON.stringify({ selectedItemId: selectedItemId })
+            // })
+            //   .then(function(response) {
+            //     return response.json();
+            //   })
+            //   .then(function(data) {
+            //     // Handle the response from the backend if needed
+            //     console.log(data);
+            //   })
+            //   .catch(function(error) {
+            //     // Handle any errors
+            //     console.log(error);
+            //   });
+      //     });
+      //   }
+      // });
+    </script>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.easing.1.3.js"></script>
+    <script src="js/jquery.waypoints.min.js"></script>
+    <script src="js/jquery.stellar.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/aos.js"></script>
+    <script src="js/jquery.animateNumber.min.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="js/google-map.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
