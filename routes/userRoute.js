@@ -36,12 +36,23 @@ router.get("/logout", userController.userLogout);
 
 router.get("/shop",auth.isLogged,  userController.getShop);
 
+router.post("/shop",auth.isLogged,  userController.getShop);
+
+router.get("/shopfilter",auth.isLogged,  userController.shopFilter);
+
+
+
+
 router.get("/single/:id", auth.isLogged, userController.getSingle);
 
 // router.get("/single", userController.single);
 
 router.use(auth.isLogged)
 router.get("/cart",userController.loadCart)
+
+router.post("/cart",userController.couponManagment)
+
+router.get("/removecoupon",userController.removeCoupon)
 
 router.get("/addCart/:id",userController.addtoCart)
 
@@ -66,6 +77,14 @@ router.post("/address/edit/:id",userController.UpdateAddress)
 
 router.get("/order",userController.loadorder)
 
+router.post("/order",userController.cancelOrder)
+
+
+ router.get("/searcProduct",userController.getShop)
+
+ router.post("/searchProduct",userController.searchProduct)
+
+
 router.get("/editorder",userController.editOrder)
 
 
@@ -79,6 +98,8 @@ router.get("/editorder",userController.editOrder)
 router.post("/checkout",userController.CreateOrder)
 
 router.get("/sucess",userController.loadSuccess)
+
+router.post("/sucess",userController.verifyPayment)
 
 
 router.get("/profile",userController.loadProfile)
@@ -95,7 +116,7 @@ router.post("/manageaddress/edit/:id",userController.UpdateprofileAddress)
 
 router.get("/manageaddress/delete/:id",userController.deleteAddress)
 
-// router.get("/product",)
+
 
 
 module.exports = router;

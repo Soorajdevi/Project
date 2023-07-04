@@ -3,7 +3,7 @@ const isLogged = (req, res, next) => {
   if (req.session.admin_id) {
     
   } else {
-    res.redirect("/admin");
+    res.redirect("/admin/login");
   }
   next()
 }catch(error){
@@ -13,11 +13,12 @@ console.log(error.message)
 
 const notLogged = (req, res, next) => {
   if (req.session.admin_id) {
-    // If admin_id exists, clear the session and redirect to the login page
-    req.session.destroy();
-    return res.redirect("/admin/login");
+    // If admin_id exists, clear the session and redirect to the admin login page
+    
+ res.redirect("/admin/category");
   } else {
     next();
   }
 };
+
 module.exports = { isLogged, notLogged };

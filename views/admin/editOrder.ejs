@@ -561,6 +561,7 @@
                                   </div>
                                 </div>
                                 
+                                
     
     
                             <div class="row ">
@@ -701,30 +702,50 @@
         
         
         <script>
-  $(document).ready(function() {
+$(document).ready(function() {
+
+  var orderID = $('#statusDropdown').data('orderid');
+  $.ajax({
+    url: '/admin/editOrder/' + orderID, 
+    method: 'GET',
+    success: function(response) {
+   console.log(response)
+      $('#statusDropdown').val(response.status);
+    },
+    error: function(error) {
+      console.error('Error fetching order status:', error);
+    }
+  });
+
+  
   $('#statusDropdown').change(function() {
-    var status = $(this).val(); // Get the selected value
-    var orderID = $(this).data('orderid'); // Get the order ID from data attribute
-console.log(status)
-console.log(orderID)
+    var status = $(this).val();
+    var orderID = $(this).data('orderid'); 
 
     $.ajax({
-      url: '/admin/editOrder/' + orderID, // Replace :id with the order ID
+      url: '/admin/editOrder/' + orderID,
       method: 'POST',
-      data: { status: status }, // Send the selected value as data
+      data: { status: status }, 
       success: function(response) {
-        // Handle the success response
-        console.log(response)
-        console.log('Status updated successfully');
-        // Optionally, you can perform any additional actions or update the UI here
+        
+        console.log(response);
+
+      //  const newone =document.getElementById("statusDropdown") 
+      //  newone.innerHTML=response.st
+        $('#' + orderID).text(status); 
       },
       error: function(error) {
-        // Handle the error response
+    
         console.error('Error updating status:', error);
       }
     });
   });
 });
+
+
+
+
+
 
 
 

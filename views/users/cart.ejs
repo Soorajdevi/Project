@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800"
       rel="stylesheet"
     />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css" />
     <link rel="stylesheet" href="css/animate.css" />
 
@@ -43,43 +43,14 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <!-- <style>
+    .coupon-container {
+      max-height: 300px; /* Adjust the maximum height as needed */
+      overflow-y: auto;
+    }
+  </style> -->
   </head>
   <body class="goto-here" style="overflow-x: hidden">
-    <!-- <div class="py-1 bg-black">
-      <div class="container">
-        <div
-          class="row no-gutters d-flex align-items-start align-items-center px-md-0"
-        >
-          <div class="col-lg-12 d-block">
-            <div class="row d-flex">
-              <div class="col-md pr-4 d-flex topper align-items-center">
-                <div
-                  class="icon mr-2 d-flex justify-content-center align-items-center"
-                >
-                  <span class="icon-phone2"></span>
-                </div>
-                <span class="text">+ 1235 2355 98</span>
-              </div>
-              <div class="col-md pr-4 d-flex topper align-items-center">
-                <div
-                  class="icon mr-2 d-flex justify-content-center align-items-center"
-                >
-                  <span class="icon-paper-plane"></span>
-                </div>
-                <span class="text">youremail@email.com</span>
-              </div>
-              <div
-                class="col-md-5 pr-4 d-flex topper align-items-center text-lg-right"
-              >
-                <span class="text"
-                  >3-5 Business days delivery &amp; Free Returns</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <nav
       class="navbar navbar-expand-lg navbar-dark ftco_navbar ftco-navbar-light"
       id="ftco-navbar"
@@ -162,8 +133,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% cart.forEach(function(cartItem){ %> <%
-                  cartItem.items.forEach(function(item,index){ %>
+                  <% cart.items.forEach(function(item) { %>
                   <tr class="text-center">
                     <td class="product-remove">
                       <i
@@ -270,7 +240,7 @@
                       <%= item.price %>
                     </td>
                   </tr>
-                  <% }); %> <% }); %>
+                  <%}) %>
                 </tbody>
               </table>
             </div>
@@ -278,35 +248,33 @@
 
           <div class="col-md-4">
             <form action="/cart" method="post">
-              <% cart.forEach(function(cartItem){ %>
-              <div class="cart-total mb-3" >>
+              <div class="cart-total mb-3">
+                >
                 <h3>Cart Totals</h3>
                 <p class="d-flex">
                   <span>Subtotal</span>
-                  <span id="subtotal"><%= cartItem.subtotal %></span>
+                  <span id="subtotal"><%= cart.subtotal %></span>
                 </p>
 
                 <p class="d-flex">
                   <span>Delivery</span>
-                  <span id="delivery"><%= cartItem.subtotal * 0.1 %></span>
+                  <span id="delivery"><%= (cart.subtotal * 0.1).toFixed() %></span>
                 </p>
 
-                <p class="d-flex">
+                <!-- <p class="d-flex">
                   <span>Discount</span>
                   <span id="discount"><%= 5 %></span>
-                </p>
+                </p> -->
 
                 <hr />
 
                 <p class="d-flex total-price">
                   <span>Total</span>
                   <span id="total"
-                    ><%= cartItem.subtotal - cartItem.subtotal * 0.1 + 5
-                    %></span
+                    ><%= (cart.subtotal +cart.subtotal * 0.1 ).toFixed() %></span
                   >
                 </p>
               </div>
-              <% }); %>
 
               <div class="row justify-content-center">
                 <p class="text-center">
@@ -316,8 +284,59 @@
                 </p>
               </div>
             </form>
+            <div class="col-lg-12 mt-5 p-3">
+              <form style="display: flex; flex-direction: column;">
+                <h5>Apply Coupon</h5> 
+                <div class="form-group">
+                <input
+                  type="text"
+                  name="name"
+                  id="couponCodeInput"
+                  placeholder="Enter coupon code"
+                />
+                <button
+                  type="button"
+                  class="  btn-apply btn btn-primary"
+                  id="applyCouponButton"
+                  style="width: 100px"
+                >
+                  APPLY
+                </button>
+                </div>
+              </form>
+
+              <div class="coupon-container" style="overflow-y: scroll; height: 20vh;">
+                <div id="couponMessage"></div>
+                <% coupon.forEach(function(item) { %>
+                <div class="hero">
+                  <strong>Savings: ₹ <%= item.discount %></strong>
+                  <p style="margin: 0"><%= item.code %></p>
+                  <p style="margin: 0">
+                    Extra upto <%= item.minValue %> Off on <%= item.discount %>
+                    and Above.
+                  </p>
+                  <p>Max Discount: ₹ <%= item.discount %></p>
+                </div>
+                <% }) %>
+              </div>
           </div>
+      
+
+       
+          
+          
+          
+
+          <span style="font-weight: bold; color: #fac45a;">
+            Remove Coupon -
+          <a href="/removecoupon">
+              <i class="fa-solid fa-trash" style="color: black;"></i>
+            </a>
+          </span>
+          
         </div>
+        </div>
+      </div>
       </div>
     </section>
 
@@ -426,7 +445,7 @@
               <script>
                 document.write(new Date().getFullYear());
               </script>
-              All rights reserved | 
+              All rights reserved |
               <i class="icon-heart color-danger" aria-hidden="true"></i> by
               <a href="" target="_blank">Winkel Pvt lmtd</a>
               <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
@@ -479,6 +498,70 @@
     <script src="js/main.js"></script>
 
     <script>
+
+
+$(document).ready(function() {
+  // Add event listener to the trash icon button
+  $(".remove-coupon-btn").click(function() {
+    // Retrieve the coupon ID from the data-coupon-id attribute
+    const couponId = $(this).data("coupon-id");
+    
+    // Perform any necessary actions with the coupon ID
+    // (e.g., send it to the backend via AJAX request)
+    $.ajax({
+      url: "/removecart/" + couponId,
+      method: "POST",
+      success: function(response) {
+        // Handle the response from the backend
+        console.log(response);
+      },
+      error: function(error) {
+        // Handle the error
+        console.log(error);
+      }
+    });
+  });
+});
+
+
+
+      document
+        .getElementById("applyCouponButton")
+        .addEventListener("click", function () {
+          const couponCode = document.getElementById("couponCodeInput").value;
+
+          if (!couponCode) {
+            document.getElementById("couponMessage").innerText =
+              "Please enter a valid coupon code.";
+            document.getElementById("couponMessage").style.color = "red";
+            return; 
+          }
+
+          
+          fetch("/cart", {
+            method: "POST",
+            body: JSON.stringify({ name: couponCode }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("couponMessage").innerText = data.message;
+
+              if (data.newPrice) {
+                document.getElementById("subtotal").innerText =
+                  data.newPrice.toFixed(2);
+
+                // Optionally, you can perform additional actions here
+              }
+              couponMessage.style.color = "red";
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
+
       $(document).ready(function () {
         //         function recalculateSubtotal() {
         //   var subtotal = 0;
@@ -501,40 +584,46 @@
         // }
 
         $(".plus-btn").on("click", function () {
-          var itemId = $(this).find("i").data("item-id");
-          var quantityInput = $("#quantity-input-" + itemId);
-          var currentQuantity = parseInt(quantityInput.val());
-          var newQuantity = currentQuantity + 1;
-          quantityInput.val(newQuantity);
-          updateCartQuantity(itemId, newQuantity);
+  var itemId = $(this).find("i").data("item-id");
+  var quantityInput = $("#quantity-input-" + itemId);
+  var currentQuantity = parseInt(quantityInput.val());
+  var newQuantity = currentQuantity + 1;
 
-          // Calculate and update the price
-          var price = parseFloat($("#total-price-" + itemId).text());
-          var itemPrice = price / currentQuantity; // Divide by current quantity
-          var newPrice = itemPrice * newQuantity; // Multiply by new quantity
-          $("#total-price-" + itemId).text(newPrice.toFixed(2));
+  // Check if new quantity exceeds available stock
+  if (newQuantity <= parseInt(quantityInput.attr("max"))) {
+    quantityInput.val(newQuantity);
+    updateCartQuantity(itemId, newQuantity);
 
-          // updateTotal();
-        });
+    // Calculate and update the price
+    var price = parseFloat($("#total-price-" + itemId).text());
+    var itemPrice = price / currentQuantity; // Divide by current quantity
+    var newPrice = itemPrice * newQuantity; // Multiply by new quantity
+    $("#total-price-" + itemId).text(newPrice.toFixed());
 
-        $(".minus-btn").on("click", function () {
-          var itemId = $(this).find("i").data("item-id");
-          var quantityInput = $("#quantity-input-" + itemId);
-          var currentQuantity = parseInt(quantityInput.val());
-          if (currentQuantity > 1) {
-            var newQuantity = currentQuantity - 1;
-            quantityInput.val(newQuantity);
-            updateCartQuantity(itemId, newQuantity);
+    // updateTotal();
+  }
+});
 
-            // Calculate and update the price
-            var price = parseFloat($("#total-price-" + itemId).text());
-            var itemPrice = price / currentQuantity; // Divide by current quantity
-            var newPrice = itemPrice * newQuantity; // Multiply by new quantity
-            $("#total-price-" + itemId).text(newPrice.toFixed(2));
+$(".minus-btn").on("click", function () {
+  var itemId = $(this).find("i").data("item-id");
+  var quantityInput = $("#quantity-input-" + itemId);
+  var currentQuantity = parseInt(quantityInput.val());
 
-            // updateTotal();
-          }
-        });
+  if (currentQuantity > 1) {
+    var newQuantity = currentQuantity - 1;
+    quantityInput.val(newQuantity);
+    updateCartQuantity(itemId, newQuantity);
+
+    // Calculate and update the price
+    var price = parseFloat($("#total-price-" + itemId).text());
+    var itemPrice = price / currentQuantity;
+    var newPrice = itemPrice * newQuantity;
+    $("#total-price-" + itemId).text(newPrice.toFixed());
+
+    // updateTotal();
+  }
+});
+
         function updateCartQuantity(itemId, quantity) {
           console.log("id from the sky" + itemId);
 
@@ -552,12 +641,12 @@
               const deliveryElement = document.getElementById("delivery");
               deliveryElement.innerText = data.cart.subtotal * 0.1; // Update the delivery value in the DOM
 
-              const discountElement = document.getElementById("discount");
-              discountElement.innerText = 5; // Update the discount value in the DOM
+              // const discountElement = document.getElementById("discount");
+              // discountElement.innerText = 5; // Update the discount value in the DOM
 
               const totalElement = document.getElementById("total");
               totalElement.innerText =
-                data.cart.subtotal - data.cart.subtotal * 0.1 + 5; // Update the total value in the DOM
+                data.cart.subtotal - data.cart.subtotal * 0.1 // Update the total value in the DOM
 
               $.ajax({
                 url: "/cart",
@@ -575,7 +664,7 @@
             error: function (error) {
               // Handle error response
               console.log(error);
-            }
+            },
           });
         }
       });
@@ -601,14 +690,26 @@
               $(`.remove-button[data-product-id="${productIdToRemove}"`)
                 .closest("tr")
                 .remove();
-console.log(response)
-             
+              console.log(response);
+              const subtotalElement = document.getElementById("subtotal");
+              subtotalElement.innerText = response.cart.subtotal; // Update the subtotal value in the DOM
+
+              const deliveryElement = document.getElementById("delivery");
+              deliveryElement.innerText = (response.cart.subtotal * 0.1).toFixed(); // Update the delivery value in the DOM
+
+              // const discountElement = document.getElementById("discount");
+              // discountElement.innerText = 5; // Update the discount value in the DOM
+
+              const totalElement = document.getElementById("total");
+              totalElement.innerText =
+                (response.cart.subtotal - response.cart.subtotal * 0.1 ).toFixed(); // Update the total value in the DOM
+
             }
           },
           error: (error) => {
             console.error(error.responseText);
           },
-        })
+        });
       }
     </script>
   </body>

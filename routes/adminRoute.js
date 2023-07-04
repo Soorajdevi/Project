@@ -7,57 +7,109 @@ const upload =require("../middleware/multer")
 const adminAuth=require("../middleware/adminAuth")
 
 
-router.get("/",  adminAuth.notLogged, adminController.loadLogin);
+router.get("/login",adminAuth.notLogged,   adminController.loadLogin);
 
 // router.post("/",adminController.verify)
 
 router.post("/login", adminController.verifyLogin)
 
-router.get("/user",adminAuth.isLogged, adminController.getUsers);
+
+// router.use(adminAuth.isLogged)
+
+router.get("/user", adminController.getUsers);
 
 router.put("/users/:id/block",  adminController.blockUser);
 
-router.get("/category",adminAuth.isLogged, adminController.getCategory)
+router.get("/category", adminController.getCategory)
 
 
-router.get("/category/addUser",adminAuth.isLogged,adminController.getaddUser)
+router.get("/category/addUser",adminController.getaddUser)
 
-router.post("/category/addCategory",adminAuth.isLogged,adminController.addCategory)
+router.post("/category/addCategory",adminController.addCategory)
 
-router.get("/category/editCategory/:id",adminAuth.isLogged, adminController.editCategory)
+router.get("/category/editCategory/:id", adminController.editCategory)
 
-router.post("/category/editCategory/:id",adminAuth.isLogged,adminController.updateCategory)
+router.post("/category/editCategory/:id",adminController.updateCategory)
 
-router.put('/category/deleteCategory/:id', adminAuth.isLogged,adminController.deleteCategory);
-
-
-router.get("/product",adminAuth.isLogged,adminController.getproduct)
-
-router.get("/product/addproduct",adminAuth.isLogged,adminController.getAddproduct)
+router.put('/category/deleteCategory/:id', adminController.deleteCategory);
 
 
-router.post("/product/addproduct" ,adminAuth.isLogged,upload.array('image', 2)  ,adminController.addProduct)
+router.get("/product",adminController.getproduct)
 
-router.get("/product/editProduct/:id",adminAuth.isLogged,upload.array('image', 2),adminController.editProduct)
+router.get("/product/addproduct",adminController.getAddproduct)
 
-router.post("/product/editProduct/:id",adminAuth.isLogged,upload.array('image', 2),adminController.updateproduct)
 
-router.put("/product/deleteProduct/:id",adminAuth.isLogged,adminController.deleteProduct)
+router.post("/product/addproduct" ,upload.array('image', 2)  ,adminController.addProduct)
 
-router.get("/orderadmin",adminAuth.isLogged,adminController.loadorder)
+router.get("/product/editProduct/:id",adminController.editProduct)
+
+router.post("/product/editProduct/:id",upload.array('image', 2),adminController.updateproduct)
+
+router.put("/product/deleteProduct/:id",adminController.deleteProduct)
+
+router.get("/orderadmin",adminController.loadorder)
 
 router.get("/editOrder/:id", adminController.loadEdit);
 
-router.post("/editOrder/:id", adminController.updatestaus);
+router.post("/editOrder/:id", adminController.updateStatus);
 
+router.get("/coupon",adminController.loadCoupon)
 
+router.post("/coupon",adminController.deleteCoupon)
 
-// router.post("/editOrder/:id",adminController.loadEdit)
+router.get("/coupon/addcoupon",adminController.loadaddCoupon)
 
+router.post("/coupon/addcoupon",adminController.addCoupon)
 
+router.get("/coupon/editcoupon/:id",adminController.editCoupon)
+
+router.post("/coupon/editcoupon/:id",adminController.updateCoupon)
+
+router.get("/banner",adminController.loadbanner)
+
+router.get("/addbanner",adminController.loadaddbanner)
+
+router.post("/addbanner",upload.array('image', 1),adminController.addbanner)
+
+router.get("/banner/editbanner/:id", upload.array('image', 1), adminController.loadEditbanner);
+
+router.post("/banner/editbanner/:id", upload.array('image', 1), adminController.updateBanner);
 
 router.get("/logout",adminController.adminLogout)
 
+router.get("/return",adminController.loadreturn)
+
+router.post("/return",adminController.returnOrder)
+
+router.get("/editreturn/:id",adminController.loadeditReturn)
+
+router.post("/editreturn/:id",adminController.editreturn)
+
+
+router.post("/repay",adminController.rePayamount)
+
+router.get("/admindashboard",adminController.loadAdmin)
+
+
+
+router.get("/offer",adminController.offerManagment)
+
+router.post("/offer",adminController.changePrice)
+
+
+router.get("/offer/addoffer",adminController.loadaddoffer)
+
+router.post("/offer/addoffer",adminController.addofferManagment)
+
+router.get("/offer/editoffer/:id",adminController.editOffer)
+
+router.post("/offer/editoffer/:id",adminController.updateOffer)
+
+router.get("/week",adminController.weekData)
+
+router.get("/month",adminController.monthData)
+
+router.get("/year",adminController.yearData)
 
 
 module.exports = router;

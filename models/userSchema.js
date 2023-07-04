@@ -65,6 +65,18 @@ const userSchema = new mongoose.Schema({
         },
   
   }],
+  coupon: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Coupon'
+  }],
+  Wallet: [{
+    _id: false,
+    amount:{
+      type:   Number,
+      
+    } 
+  }]
+
 });
 
 const User = mongoose.model("User", userSchema);

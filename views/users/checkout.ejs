@@ -201,31 +201,31 @@
           <div class="col-lg-4">
               <p style="font-weight: bold;">Choose Payment Method</p>
               <div class="row shadow">
-                <div class="col-lg-4" style="color: rgb(46, 45, 45); font-weight: 700; background-color: #f0f0f0;">
+                <div class="col-lg-12" style="color: rgb(46, 45, 45); font-weight: 700; background-color: #f0f0f0;">
                   <p>Recommended</p>
                   <hr>
                   <p><i class="fa-sharp fa-solid fa-money-bill-1-wave mx-2"></i>Cash On Delivery</p>
                   <hr>
                   <p>UPI</p>
                 </div>
-                <div class="col-lg-8 text-center">
+                <div class="col-lg-12 text-left">
                   <label>
                     <input id="cashOnDelivery" type="radio" name="paymentMethod" value="cash_on_delivery">
                     Cash on Delivery
                   </label>
                 </div>
-                <div class="col-lg-8 text-center">
+                <div class="col-lg-12 text-left">
                   <label>
                     <input id="onlinepayment" type="radio" name="paymentMethod" value="online_payment">
                     UPI
                   </label>
                 </div>
               </div>
-          <div class="col-lg-4">
-            <% price.forEach(function(cartItem) { %>
+          <div class="col-lg-4" style="max-width: 100%;">
+           
             <div
               class="form-group border border-dark my-4 shadow-sm py-4"
-              style="height: auto"
+              style="height: auto; width: 100%; "
             >
               <h5 class="mx-5 fs-b text-center" style="font-weight: bold">
                 Order Summary
@@ -235,27 +235,27 @@
                 class="d-flex justify-content-between align-items-center mx-5 mt-2"
               >
                 <h6>Total MRP:</h6>
-                <span><%= cartItem.subtotal %></span>
+                <span><%= price.subtotal %></span>
               </div>
               <div
                 class="d-flex justify-content-between align-items-center mx-5 mt-2"
               >
-                <h6>Discount On MRP:</h6>
-                <span><%= cartItem.subtotal * 0.1 %></span>
+                <h6>Delivery:</h6>
+                <span><%= (price.subtotal * 0.1).toFixed() %></span>
               </div>
-              <div
+              <!-- <div
                 class="d-flex justify-content-between align-items-center mx-5 mt-2"
               >
                 <h6>Convenience fee:</h6>
                 <span><%= 5 %></span>
-              </div>
+              </div> -->
               <hr class="mx-2" />
               <div
                 class="d-flex justify-content-between align-items-center mx-5 mt-2"
               >
                 <h6>Total Amount:</h6>
                 <span
-                  ><%= cartItem.subtotal - cartItem.subtotal * 0.1 + 5 %></span
+                  ><%= (price.subtotal + price.subtotal * 0.1).toFixed() %></span
                 >
               </div>
              <div class="text-center">
@@ -264,7 +264,7 @@
                   </button>
               </div>           
              </div>
-            <% }); %>
+          
           </div>
         </div>
         <!-- <form action="/payment" method="post" class="billing-form">
@@ -432,154 +432,132 @@
         />
       </svg>
     </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
-      document.getElementById("continueBtn")
-        .addEventListener("click", function (e) {
-          const selectedAddress = document.querySelector(
-            'input[name="selectedAddress"]:checked'
-          );
 
-          const selectedmethod = document.querySelector(
-            'input[name="paymentMethod"]:checked'
-          );
 
-          if (!selectedAddress) {
-            e.preventDefault(); // Prevent the default button action (i.e., navigating to the payment page)
-            return alert("Please select a shipping address");
-          }
+document.getElementById("continueBtn").addEventListener("click", function (e) {
+  const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
-          if (!selectedmethod) {
-            e.preventDefault(); // Prevent the default button action (i.e., navigating to the payment page)
-            return alert("Please select a payment method");
-          }
+  if (!selectedAddress) {
+    e.preventDefault();
+    return alert("Please select a shipping address");
+  }
 
-          alert(selectedAddress.value)
+  if (!selectedMethod) {
+    e.preventDefault();
+    return alert("Please select a payment method");
+  }
 
-        fetch('/checkout', {
+  fetch('/checkout', {
     method: 'POST',
     headers: {
-        'Content-Type': 'application/json'
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ selectedItemId: selectedAddress.value, selectedmethod: selectedmethod.value })
-})
+    body: JSON.stringify({
+      selectedItemId: selectedAddress.value,
+      selectedMethod: selectedMethod.value
+    })
+  })
     .then(function (response) {
-        // Check the response status
-        if (!response.ok) {
-            throw new Error('Error: ' + response.status);
-        }
-        // Parse the response as JSON
-        return response.json();
+      if (!response.ok) {
+        throw new Error('Error: ' + response.status);
+      }
+      return response.json();
     })
     .then(function (data) {
-        // Handle the response from the backend
-        console.log(data);
-        if (data === 'Sucess') {
-            // Redirect or render the success page
-            window.location.href = '/success';
-        } else {
-            // Handle other responses or show error messages
-        }
+      console.log(data);
+      if (data === 'Sucess') {
+        window.location.href = '/sucess';
+      } else {
+        razorpayPayment(data.generatedOrder, selectedMethod.value, selectedAddress.value);
+        console.log(data.generatedOrder);
+      }
     })
     .catch(function (error) {
-        // Handle any errors
-        console.log(error);
+      console.log(error);
     });
 
+  console.log(selectedAddress);
+});
 
-          console.log(selectedAddress);
-        });
+function razorpayPayment(order, selectedMethod, selectedAddress) {
+  console.log(selectedAddress,selectedMethod + "sreeeraju")
+  var options = {
+    key: "rzp_test_wuu2yhm284NSc9", // Enter the Key ID generated from the Dashboard
+    amount: order.amount, 
+    name: "Winkel Ecommerce", // your business name
+    description: "Test Transaction",
+    image: "https://example.com/your_logo",
+    order_id: order.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    handler: function (response) {
+      console.log(response);
+      verifyPayment(order, selectedMethod, selectedAddress,response);
+    },
+    prefill: {
+      name: "Gaurav Kumar", // your customer's name
+      email: "gaurav.kumar@example.com",
+      contact: "9000090000"
+    },
+    notes: {
+      address: "Razorpay Corporate Office"
+    },
+    theme: {
+      color: "#ffa45c"
+    }
+  };
 
-  //       const cashOnDeliveryRadio = document.getElementById("cashOnDelivery");
-  // cashOnDeliveryRadio.addEventListener("change", function() {
-  //   const paymentMethod = "cash_on_delivery";
+  const rzp1 = new Razorpay(options);
+  rzp1.open();
+}
 
-  //   // Send an AJAX request to the backend
-  //   const xhr = new XMLHttpRequest();
-  //   xhr.open("POST", "/checkout");
-  //   xhr.setRequestHeader("Content-Type", "application/json");
-  //   xhr.onload = function() {
-  //     if (xhr.status === 200) {
-  //       // Success response from the backend
-  //       console.log("Payment method submitted successfully");
-  //       // Redirect or perform any other actions as needed
-  //     } else {
-  //       // Error response from the backend
-  //       console.log("Failed to submit payment method");
-  //     }
-  //   };
-  //   xhr.send(JSON.stringify({ paymentMethod }));
-  // });// const orderButton = document.querySelector(".order-button");
-  //     // orderButton.addEventListener("click", () => {
-      //   // const cartId = orderButton.dataset.cartId;
-      //   var addressInputs = document.getElementsByName("selectedAddress");
-      //   var selectedItemId;
-      //   for (var i = 0; i < addressInputs.length; i++) {
-      //     addressInputs[i].addEventListener("change", function () {
-      //       selectedItemId = this.value;
-      //     });
-      //   }
+rzp1.on('payment.failed', function (response) {
+  alert(response.error.code);
+  alert(response.error.description);
+  alert(response.error.source);
+  alert(response.error.step);
+  alert(response.error.reason);
+  alert(response.error.metadata.order_id);
+  alert(response.error.metadata.payment_id);
+});
 
-      //   if (!selectedItemId) {
-      //     return alert("no address");
-      //   }
+function verifyPayment( order, selectedMethod, selectedAddress, response) {
+  console.log( order, selectedMethod, selectedAddress, response+ "hi guys")
+  fetch("/sucess", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      response,
+      order,
+      selectedAddress,
+      selectedMethod
+    })
+  })
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error("Error: " + response.status);
+      }
+      return response.json();
+    })
+    .then(function (response) {
+      console.log(response);
+      if (response.status===true) {
+        location.href = "/sucess";
+      } else {
+        alert("Payment failed");
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
-      //   // Create an object with the data to send
-      //   const data = {
-      //     selectedItemId: selectedItemId,
-      //   };
 
-      //   alert(selectedItemId);
 
-      //   // Make an AJAX request or use fetch to send the data to the server
-      //   // fetch('/order', {
-      //   //   method: 'POST',
-      //   //   headers: {
-      //   //     'Content-Type': 'application/json'
-      //   //   },
-      //   //   body: JSON.stringify(data)
-      //   // })
-      //   // .then(response => response.json())
-      //   // .then(result => {
-      //   //   // Handle the response from the server
-      //   //   console.log(result);
-      //   // })
-      //   // .catch(error => {
-      //   //   // Handle any errors that occur during the request
-      //   //   console.error(error);
-      //   // });
-      // });
-
-      //   document.addEventListener('DOMContentLoaded', function() {
-      //   // Event listener for radio button change
-      //   var addressInputs = document.getElementsByName('selectedAddress');
-      //   for (var i = 0; i < addressInputs.length; i++) {
-      //     addressInputs[i].addEventListener('change', function() {
-      //       var selectedItemId = this.value;
-      //       alert(selectedItemId);
-
-            // Make a fetch request to the backend
-            // fetch('/order', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json'
-            //   },
-            //   body: JSON.stringify({ selectedItemId: selectedItemId })
-            // })
-            //   .then(function(response) {
-            //     return response.json();
-            //   })
-            //   .then(function(data) {
-            //     // Handle the response from the backend if needed
-            //     console.log(data);
-            //   })
-            //   .catch(function(error) {
-            //     // Handle any errors
-            //     console.log(error);
-            //   });
-      //     });
-      //   }
-      // });
     </script>
 
     <script src="js/jquery.min.js"></script>

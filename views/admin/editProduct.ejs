@@ -570,9 +570,10 @@
                   <div class="col-md-4 mt-4 ">
 
                     <h3 class="" style="color:gray;font-size: medium;">image</h3>
-                    <input type="file" style="width: 70%; height: 30px;"  name="image" multiple  class="border border-dark file " >
+                    <% products.image.forEach(function(path) { %>
+                    <input type="file" style="width: 70%; height: 30px;"  name="image" multiple  class="border border-dark file " value="<%=path%>">
                   </div>
-    
+                  <% }) %>
                   <div class="col-md-12 mt-4  ">
                     <button class="btn btn-success mt-2 mx-2" type="submit">Edit Product</button>
                   </div>

@@ -26,6 +26,7 @@
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
     crossorigin="anonymous"
   />
+
   </head>
 
   <body>
@@ -394,131 +395,64 @@
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href="#tables"
+                href="/admin/orderadmin"
                 aria-expanded="false"
                 aria-controls="tables"
               >
                 <i class="typcn typcn-th-small-outline menu-icon"></i>
-                <span class="menu-title">Tables</span>
-                <i class="menu-arrow"></i>
+                <span class="menu-title">Orders</span>
+               
               </a>
-              <div class="collapse" id="tables">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      href="../../pages/tables/basic-table.html"
-                      >Basic table</a
-                    >
-                  </li>
-                </ul>
-              </div>
+             
             </li>
             <li class="nav-item">
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href="#icons"
+                href="/admin/coupon"
                 aria-expanded="false"
                 aria-controls="icons"
               >
                 <i class="typcn typcn-compass menu-icon"></i>
-                <span class="menu-title">Icons</span>
-                <i class="menu-arrow"></i>
+                <span class="menu-title">Coupons</span>
+              
               </a>
-              <div class="collapse" id="icons">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="../../pages/icons/mdi.html"
-                      >Mdi icons</a
-                    >
-                  </li>
-                </ul>
-              </div>
+            
             </li>
             <li class="nav-item">
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href="#auth"
+                href="/admin/banner"
                 aria-expanded="false"
                 aria-controls="auth"
               >
                 <i class="typcn typcn-user-add-outline menu-icon"></i>
-                <span class="menu-title">User Pages</span>
-                <i class="menu-arrow"></i>
+                <span class="menu-title">Banners</span>
+               
               </a>
-              <div class="collapse" id="auth">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="../../pages/samples/login.html">
-                      Login
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      href="../../pages/samples/register.html"
-                    >
-                      Register
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              
             </li>
+
             <li class="nav-item">
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href="#error"
+                href="/admin/return"
                 aria-expanded="false"
-                aria-controls="error"
+                aria-controls="auth"
               >
-                <i class="typcn typcn-globe-outline menu-icon"></i>
-                <span class="menu-title">Error pages</span>
-                <i class="menu-arrow"></i>
+                <i class="typcn typcn-user-add-outline menu-icon"></i>
+                <span class="menu-title">Return</span>
+            
               </a>
-              <div class="collapse" id="error">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      href="../../pages/samples/error-404.html"
-                    >
-                      404
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      href="../../pages/samples/error-500.html"
-                    >
-                      500
-                    </a>
-                  </li>
-                </ul>
-              </div>
+            
             </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="../../pages/documentation/documentation.html"
-              >
-                <i class="typcn typcn-document-text menu-icon"></i>
-                <span class="menu-title">Documentation</span>
-              </a>
-            </li>
+           
+            
           </ul>
-          <ul class="sidebar-legend">
-            <li>
-              <p class="sidebar-menu-title">Category</p>
-            </li>
-            <li class="nav-item"><a href="#" class="nav-link">#Sales</a></li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">#Marketing</a>
-            </li>
-            <li class="nav-item"><a href="#" class="nav-link">#Growth</a></li>
-          </ul>
+       
+        
         </nav>
         <!-- partial -->
         <div class="main-panel">
@@ -582,6 +516,31 @@
             </div>
             <a href="product/addproduct" class="btn btn-success mb-4">Add Products</a>
           </div>
+          
+          <div class="row mb-5">
+            <div class="col">
+              <div class="block-27">
+                <ul class="pagination justify-content-center m-4">
+                  <li class="page-item">
+                    <a class="page-link" href="/admin/product?page=1">&lt;</a>
+                  </li>
+                  <% for (let i = 1; i < totalPages; i++) { %>
+                  <% const isActive = i === currentPage; %>
+                  <li class="page-item <%= isActive ? 'active' : '' %>">
+                    <a class="page-link" href="/admin/product?page=<%= i %>">
+                      <span style="font-size: 18px;"><%= i %></span>
+                    </a>
+                  </li>
+                  <% } %>
+                  <li class="page-item">
+                    <a class="page-link" href="/admin/product?page=<%= totalPages %>">&gt;</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+
           <footer class="footer">
             <div class="d-sm-flex justify-content-center justify-content-sm-between">
               <span class="text-center text-sm-left d-block d-sm-inline-block">Copyright © Sooraj Hari 2023 <a href="https://www.bootstrapdash.com/" target="_blank">Winkle.com</a> 2023</span>

@@ -30,11 +30,60 @@
     <link rel="stylesheet" href="css/flaticon.css" />
     <link rel="stylesheet" href="css/icomoon.css" />
     <link rel="stylesheet" href="css/style.css" />
-<!-- <style>
-    .custom-card-height {
-  height: 400px; /* Adjust the value as per your needs */
+<style>
+  /* Styles for wrapping the search box */
+
+.main {
+    width: 50%;
+    margin: 50px auto;
 }
-</style> -->
+
+/* Bootstrap 4 text input with search icon */
+
+.has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}.status-delivered {
+  background-color: green;
+  
+  border-radius: 50px;
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+.status-cancelled {
+  background-color: red;
+  border-radius: 50px;
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+.status-returned {
+  background-color: orange;
+  border-radius: 50px;
+  padding: 5px 10px;
+  display: inline-block;
+}
+.status-pending{
+  background-color:grey;
+  border-radius: 50px;
+  padding: 5px 10px;
+  display: inline-block;
+
+}
+
+</style>
 
 
   </head>
@@ -175,7 +224,16 @@
                   <p class="card-description">
                  <code style="color: gray;">Home > My Profile > My Orders </code>
                   </p>
-                  <form action="/order">
+                  <div class="main">
+
+                    <form action="/searchOrder" method="post">
+                    <div class="form-group has-search d-flex">
+                      <span class="fa fa-search form-control-feedback"></span>
+                      <input type="text" class="form-control" placeholder="Search" name="search">
+                      <button class="btn btn-primary" type="submit"  style="border-radius: 0%;">Order</button>
+                    </div>
+                  </form>
+                  </div>
                   <div class="table-responsive">
                     <table class="table table-striped">
                       <thead>
@@ -184,7 +242,7 @@
                       <tbody>
                         <% order.forEach(function(orderItem) { %>
                           <% const firstItem = orderItem.items[0]; %>
-                          <tr>
+                          <tr data-order-id="<%= orderItem._id %>">
                             <td class="py-1">
                               <% if (firstItem.product.image && Array.isArray(firstItem.product.image)) { %>
                                 <% const imagePath = firstItem.product.image[0].replace('public', ''); %>
@@ -196,13 +254,61 @@
                                 <a href="/editorder?orderid=<%= orderItem._id %>"><%= firstItem.product.name %></a>
                               </div>
                             </td>
-                            <td>
-                              <%= orderItem.totalPrice %>
+                            <td style="font-weight: bold; color: black;">
+                              ₹<%= orderItem.totalPrice %>
+                            </td>
+                            <td style="color: black;">
+                              <% if (orderItem.status === 'delivered') { %>
+                                <span class="status-delivered">Delivered</span>
+                              <% } else if (orderItem.status === 'cancelled') { %>
+                                <span class="status-cancelled">Cancelled</span>
+                              <% } else if (orderItem.status === 'returned') { %>
+                                <span class="status-returned">Returned</span>
+                              <% }else if (orderItem.status === 'pending') { %>
+                                <span class="status-pending">pending</span>
+                              <% }
+                               else { %>
+                                <%= orderItem.status %>
+                              <% } %>
                             </td>
                             <td>
-                              <%= orderItem.status %>
+                              <button class="btn-cancel-order btn btn-primary" onclick="showDialog('<%= orderItem._id %>')">Cancel Order</button>
                             </td>
                           </tr>
+                          
+                    <div
+                    id="confirm-dialog"
+                    style="
+                      display: none;
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      background-color: #ffffff;
+                      width: 500px;
+                      height: 150px;
+                      border: none;
+                      text-align: center;
+                    "
+                    class="shadow"
+                  >
+                    <p style="color: black; font-weight: bold" class="mt-2">
+                      Are you sure you want to remove this product?
+                    </p>
+                    <button
+                      onclick=""   data-order-id="<%=orderItem._id%>"
+                      class="btn btn-primary w-25"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onclick="hideDialog()"
+                      class="btn btn-secondary w-25"
+                    >
+                      No
+                    </button>
+                  </div>
+
                         <% }); %>
                       </tbody>
                       
@@ -210,106 +316,31 @@
                       
                       
 
-                          <!-- <td class="py-1">
-                            <img src="assets/images/faces/face3.jpg" alt="image"/>
-                          </td>
-                          <td>
-                            John Richards
-                          </td>
-                          <td>
-                            <div class="progress">
-                              <div class="progress-bar bg-warning" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </td>
-                          <td>
-                            $138.00
-                          </td>
-                          <td>
-                            Apr 12, 2015
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="py-1">
-                            <img src="../../images/faces/face4.jpg" alt="image"/>
-                          </td>
-                          <td>
-                            Peter Meggik
-                          </td>
-                          <td>
-                            <div class="progress">
-                              <div class="progress-bar bg-primary" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </td>
-                          <td>
-                            $ 77.99
-                          </td>
-                          <td>
-                            May 15, 2015
-                          </td>
-                        </tr>
-                         <tr> --> 
-                          <!-- <td class="py-1">
-                            <img src="../../images/faces/face5.jpg" alt="image"/>
-                          </td>
-                          <td>
-                            Edward
-                          </td>
-                          <td>
-                            <div class="progress">
-                              <div class="progress-bar bg-danger" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </td>
-                          <td>
-                            $ 160.25
-                          </td>
-                          <td>
-                            May 03, 2015
-                          </td>
-                        </tr>
-                        <tr> -->
-                          <!-- <td class="py-1">
-                            <img src="../../images/faces/face6.jpg" alt="image"/>
-                          </td>
-                          <td>
-                            John Doe
-                          </td>
-                          <td>
-                            <div class="progress">
-                              <div class="progress-bar bg-info" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </td>
-                          <td>
-                            $ 123.21
-                          </td>
-                          <td>
-                            April 05, 2015
-                          </td>
-                        </tr> -->
-                        <!-- <tr>
-                          <td class="py-1">
-                            <img src="../../images/faces/face7.jpg" alt="image"/>
-                          </td>
-                          <td>
-                            Henry Tom
-                          </td>
-                          <td>
-                            <div class="progress">
-                              <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </td>
-                          <td>
-                            $ 150.00
-                          </td>
-                          <td>
-                            June 16, 2015
-                          </td>
-                        </tr> -->
+                         
                       
                     </table>
+
+                    
                   </div>
-                  </form>
+                
                 </div>
               </div>
+              <div class="row mt-5">
+                <div class="col text-center">
+                  <div class="block-27">
+                  <ul>
+                    <li><a href="/order?page=1">&lt;</a></li>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% const isActive = i === currentPage; %>
+                    <li class="<%= isActive ? 'active' : '' %>">
+                      <a href="/order?page=<%= i %>"><span><%= i %></span></a>
+                    </li>
+                    <% } %>
+                    <li><a href="/order?page=<%= totalPages %>">&gt;</a></li>
+                  </ul>
+                  </div>
+                </div>
+                </div>
             </div>
             
            
@@ -433,6 +464,7 @@
               </div>
             </div>
           </footer>
+          
         <!-- content-wrapper ends -->
         <!-- partial:../../partials/_footer.html -->
         <!-- <footer class="footer">
@@ -459,11 +491,84 @@
   <script src="../../js/template.js"></script>
   <script src="../../js/settings.js"></script>
   <script src="../../js/todolist.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="path/to/your/custom-script.js"></script>
   <!-- endinject -->
   <!-- plugin js for this page -->
   <!-- End plugin js for this page -->
   <!-- Custom js for this page-->
   <!-- End custom js for this page-->
+
+
+<script>
+ 
+ function showDialog(orderId) {
+  $("#confirm-dialog").show();
+  // Set the order ID as a data attribute on the "Yes" button
+  $("#confirm-dialog button.btn-primary").attr("data-order-id", orderId);
+}
+
+function hideDialog() {
+  $("#confirm-dialog").hide();
+}
+
+// Handle click event of the "Yes" button
+$("#confirm-dialog button.btn-primary").click(function () {
+  // Get the order ID from the data attribute
+  const orderId = $(this).attr("data-order-id");
+
+  $.ajax({
+    url: "/order",
+    method: "POST",
+    data: { orderId: orderId },
+    success: function (response) {
+      // Update the status dynamically based on the response
+      const statusElement = $(`tr[data-order-id="${orderId}"] td.status`);
+      statusElement.text(response.status);
+    },
+    error: function (error) {
+      // Handle any errors that occurred during the request
+    },
+  });
+
+  // Hide the dialog after the request is sent
+  hideDialog();
+});
+
+
+
+
+</script>
+
+<script>
+//   $(document).ready(function() {
+//   $("form").submit(function(event) {
+//     event.preventDefault(); // Prevent form submission
+    
+//     // Get the search query entered by the user
+//     var searchQuery = $("input[name='search']").val();
+//     console.log(searchQuery)
+//     // Make an Ajax request to the backend
+//     $.ajax({
+//       url: "/searchOrder", // Replace with your backend endpoint
+//       method: "POST",
+//       data: { search: searchQuery },
+//       success: function(response) {
+//         // Handle the successful response from the backend
+//         console.log(response);
+//         // Perform further actions with the returned data
+//       },
+//       error: function(error) {
+//         // Handle the error
+//         console.log(error);
+//       }
+//     });
+//   });
+// });
+
+</script>
+
 </body>
 
 </html>
