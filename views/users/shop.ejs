@@ -66,32 +66,29 @@
 	      <div class="collapse navbar-collapse" id="ftco-nav">
 	        <ul class="navbar-nav ml-auto">
 	          <li class="nav-item"><a href="/home" class="nav-link">Home</a></li>
-	          <!-- <li class="nav-item dropdown active">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
-              <div class="dropdown-menu" aria-labelledby="dropdown04">
-              	<a class="dropdown-item" href="shop.html">Shop</a>
-                <a class="dropdown-item" href="product-single.html">Single Product</a>
-                <a class="dropdown-item" href="cart.html">Cart</a>
-                <a class="dropdown-item" href="checkout.html">Checkout</a>
-              </div>
-            </li> -->
+
+			  <li class="nav-item">
+				<a href="" class="nav-link">Shop</a>
+			  </li>
+			
 	          <li class="nav-item"><a href="/profile" class="nav-link">Profile</a></li>
 			  <div class="dropdownnew mb-5">
-				<div class="d-inline-block"> 
+				<div class="d-inline-block" style="position: relative;"> 
 					<button class="btn btn-secondary dropdown-toggle mt-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="text-decoration: none; height: 30px; background-color: white; border: none; color: #000;">
 						Category
 					</button>
-					<div class="dropdown-menu " style="margin-left: 900px;" aria-labelledby="dropdownMenuButton"> 
-						<a class="dropdown-item "  href="/shopfilter?cata=Mens">Mens</a>
-						<a class="dropdown-item" href="/shopfilter?cata=Womens">Womens</a>
-						<a class="dropdown-item" href="/shopfilter?cata=Kids">Kids</a>
-					</div>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<a class="dropdown-item" id="mens-option">Mens</a>
+						<a class="dropdown-item" id="womens-option">Womens</a>
+						<a class="dropdown-item" id="kids-option">Kids</a>
+					  </div>
+					  
 				</div>
 			</div>
 			
 			
 			  
-	          <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+	   
 	          <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span>[0]</a></li>
 
 	        </ul>
@@ -118,7 +115,7 @@
 					<form id="searchForm" class="d-flex justify-content-center">
 						<div class="form-group has-search" style="display: flex;">
 							<span class="fa fa-search form-control-feedback"></span>
-							<input type="text" class="form-control" placeholder="Search" name="search" style="width: 500px;"> <!-- Increase the width as desired -->
+							<input type="text" class="form-control" placeholder="Search" name="search" style="max-width: 300px;"> <!-- Increase the width as desired -->
 							<button class="btn btn-primary" type="submit" style="border-radius: 0%;">Search</button>
 						</div>
 					</form>
@@ -152,7 +149,8 @@
 
     <div>
 
-      <a href="/shop?priceRange=0-500"style="color: #777676;">.Rs 0 to .Rs 500</a>
+		<a href="/shop?priceRange=0-500" style="color: #777676;">.Rs 0 to .Rs 500</a>
+
     </div>
 
     <div>
@@ -225,8 +223,12 @@
 								<div class="d-flex">
 								  <div class="pricing">
 									<p class="price">
-									  <span class="mr-2 price-dc">₹<%= item.price %></span>
-									  <span class="price-sale">₹<%= item.price %></span>
+									    <% if (item.offerprice) { %>
+											<span class="mr-2 price-dc">₹<%= item.price %></span>
+											<span class="price-sale">₹<%= item.offerprice %></span>
+										  <% } else { %>
+											<span class="price-sale">₹<%= item.price %></span>
+										  <% } %>
 									</p>
 								  </div>
 								  <!-- <div class="rating">
@@ -400,7 +402,7 @@
       data: { search: searchQuery },
       success: function(response) {
         // Handle the successful response from the backend
-        console.log(response);
+        // console.log(response);
         UIupdate(response);
         // Perform further actions with the returned data
       },
@@ -417,7 +419,7 @@
 
     // Update the UI with the returned data
     response.forEach(function(data) {
-		console.log(data)
+		// console.log(data)
       const item = `
           <div class="col-sm-6 col-md-6 col-lg-4 ">
             <div class="product">
@@ -465,6 +467,79 @@
 
 </script>
 
+<script>
+	$(document).ready(function () {
+  $(".dropdown-item").on("click", function () {
+    const selectedCategory = $(this).text().trim();
+
+    $.ajax({
+      url: "/shopfilter",
+      method: "POST",
+      data: { category: selectedCategory },
+      success: function (response) {
+        // Handle success response
+        console.log(response);
+		UIupdate(response);
+      },
+      error: function (xhr, status, error) {
+        console.error(error);
+      },
+    });
+  });
+
+   function UIupdate(response) {
+	const productContainer = document.getElementById('product-container');
+    productContainer.innerHTML="";
+
+    // Update the UI with the returned data
+    response.forEach(function(data) {
+		// console.log(data)
+      const item = `
+          <div class="col-sm-6 col-md-6 col-lg-4 ">
+            <div class="product">
+              <a href="#" class="img-prod">
+                <a href="/single/${data._id}">
+                  <img class="img-fluid product-image" src="${data.image[0].replace('public', '')}" alt="Product Image" />
+                </a>
+                <span class="status">30%</span>
+                <div class="overlay"></div>
+              </a>
+              <div class="text py-3 px-3">
+                <h3><a href="#">${data.name}</a></h3>
+                <div class="d-flex">
+                  <div class="pricing">
+                    <p class="price">
+                      <span class="price-sale">₹${data.price}</span>
+                    </p>
+                  </div>
+                  <div class="rating">
+                    <p class="text-right">
+                      <a href="#"><span class="ion-ios-star-outline"></span></a>
+                      <a href="#"><span class="ion-ios-star-outline"></span></a>
+                      <a href="#"><span class="ion-ios-star-outline"></span></a>
+                      <a href="#"><span class="ion-ios-star-outline"></span></a>
+                      <a href="#"><span class="ion-ios-star-outline"></span></a>
+                    </p>
+                  </div>
+                </div>
+                <p class="bottom-area d-flex px-3">
+                  <a href="#" class="add-to-cart text-center py-2 mr-1">
+                    <span>Add to cart <i class="ion-ios-add ml-1"></i></span>
+                  </a>
+                  <a href="#" class="buy-now text-center py-2">
+                    Buy now<span><i class="ion-ios-cart ml-1"></i></span>
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+      `;
+	  productContainer.innerHTML += item
+    });
+  }
+});
+
+</script>
 
 
   </body>

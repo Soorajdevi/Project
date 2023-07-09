@@ -13,6 +13,7 @@ const User = require('../models/userSchema')
         next()
       }
     } else {
+      
       res.redirect('/login')
     }
   }

@@ -10,6 +10,8 @@ const Banner = require("../models/banner");
 const Return = require("../models/returnSchema");
 const Offer = require("../models/offerSchema");
 const mongoose = require("mongoose");
+const PDFDocument = require("pdfkit");
+const ExcelJS = require("exceljs");
 const fs = require("fs");
 
 const loadLogin = (req, res) => {
@@ -755,22 +757,28 @@ const changePrice = async (req, res) => {
     const products = await Product.find({ categoryId: categoryId });
     console.log(products);
 
-    products.forEach((product) => {
-      var newPrice = (product.price * offer.offerValue) / 100;
+    const errorProducts = [];
+
+    for (const product of products) {
+      const newPrice = Math.floor((product.price * offer.offerValue) / 100);
       console.log(newPrice);
-      Product.findByIdAndUpdate(
-        { categoryId: categoryId },
-        { $set: { offerPrice: newPrice } },
-        { multi: true }
-      );
-      // product.price = newPrice;
-    });
 
-    // const offerPrice = offer.map((off) => off.offerValue);
-    // console.log(offerPrice);
+      if (newPrice < 0) {
+        errorProducts.push(product._id);
+      } else {
+        product.offerprice = newPrice;
+        await product.save();
+      }
+      if (errorProducts.length > 0) {
+        return res.status(400).json({
+          message: "Offer price should be greater than zero.",
+          errorProducts,
+        });
+      }
+    }
 
-    // const productprice= products.map((pro)=>pro.price)
-    // console.log(productprice)
+    console.log("Offer prices updated successfully.");
+    res.status(200).json({ message: "Offer prices updated successfully." });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -786,7 +794,6 @@ const loadaddoffer = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
 const addofferManagment = async (req, res) => {
   try {
     const offerName = req.body.offerName;
@@ -794,16 +801,7 @@ const addofferManagment = async (req, res) => {
     const categoryId = req.body.categoryId;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
-
-    // console.log(offerName, offerValue, offerType, startDate, endDate);
-
-    // const product = await Product.find();
-    // const productIDs = product.map((product) => product._id);
-    // console.log(productIDs);
-
-    // const category = await Category.find();
-    // const categoryIDs = category.map((category) => category._id);
-    // console.log(categoryIDs);
+    console.log(offerName,offerValue)
 
     const offer = new Offer({
       offerName: offerName,
@@ -812,8 +810,14 @@ const addofferManagment = async (req, res) => {
       startDate: startDate,
       endDate: endDate,
     });
-    await offer.save();
-    res.redirect("/admin/offer");
+
+    if (new Date(startDate) > new Date(endDate)) {
+        res.json( "End date should be after the start date." );
+    } else {
+      await offer.save();
+      res.json("sucess")
+    }
+    console.log("sucess")
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -823,7 +827,7 @@ const addofferManagment = async (req, res) => {
 const editOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
-    console.log(offerId);
+    // console.log(offerId);
 
     const offer = await Offer.findById(offerId);
 
@@ -862,6 +866,39 @@ const updateOffer = async (req, res) => {
   }
 };
 
+const deletesOffer = async (req, res) => {
+  try {
+    const offerid = req.body.id;
+    console.log(offerid);
+
+    const offer = await Offer.findById(offerid).populate("categoryId");
+
+    const categoryId = offer.categoryId;
+    console.log(categoryId);
+
+    const products = await Product.find({ categoryId: categoryId });
+    console.log(products);
+
+    const deletedCoupon = await Offer.findByIdAndDelete(offerid);
+
+    if (!deletedCoupon) {
+      return res.status(404).json({ error: "Coupon not found" });
+    }
+
+    for (let i = 0; i < products.length; i++) {
+      products[i].offerprice = 0;
+      await products[i].save();
+    }
+    res.status(200).json({
+      message: "offer deleted successfully",
+      deletedofferId: offerid,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 const loadAdmin = async (req, res) => {
   try {
     const totalRevenue = await Order.aggregate([
@@ -877,27 +914,26 @@ const loadAdmin = async (req, res) => {
 
     const usercount = await User.countDocuments();
 
-    const currentDate = new Date(); // Get the current date
-    const startOfWeek = new Date(currentDate); // Clone the current date
-
-    // Calculate the start of the week (previous Tuesday)
-    startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 5) % 7);
-
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate);
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 6); // Set the end of the week (current Monday + 6 days)
+    endOfWeek.setDate(endOfWeek.getDate() - 6);
 
     const weeklyData = await Order.aggregate([
       {
         $match: {
           status: "delivered",
-          createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+          createdAt: { $gte: endOfWeek, $lte: startOfWeek },
         },
       },
       {
         $group: {
-          _id: null,
+          _id: { $dayOfWeek: "$createdAt" },
           totalSales: { $sum: "$totalPrice" },
         },
+      },
+      {
+        $sort: { _id: 1 }, // Sort the data by the day of the week (1: Sunday, 2: Monday, etc.)
       },
     ]);
 
@@ -975,31 +1011,29 @@ const loadAdmin = async (req, res) => {
 };
 const weekData = async (req, res) => {
   try {
-    const currentDate = new Date(); // Get the current date
-    const startOfWeek = new Date(currentDate); // Clone the current date
-
-    // Calculate the start of the week (previous Tuesday)
-    startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 5) % 7);
-
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate);
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 6); // Set the end of the week (current Monday + 6 days)
+    endOfWeek.setDate(endOfWeek.getDate() - 6);
 
     const weeklyData = await Order.aggregate([
       {
         $match: {
           status: "delivered",
-          createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+          createdAt: { $gte: endOfWeek, $lte: startOfWeek },
         },
       },
       {
         $group: {
-          _id: null,
+          _id: { $dayOfWeek: "$createdAt" },
           totalSales: { $sum: "$totalPrice" },
         },
       },
+      {
+        $sort: { _id: 1 }, // Sort the data by the day of the week (1: Sunday, 2: Monday, etc.)
+      },
     ]);
 
-    console.log(weeklyData);
     res.json(weeklyData);
   } catch (error) {
     console.log(error.message);
@@ -1038,7 +1072,7 @@ const monthData = async (req, res) => {
       const totalSales = result.length > 0 ? result[0].totalSales : 0;
       monthlyData.push(totalSales);
     }
-    console.log(monthData);
+    // console.log(monthData);
     res.json(monthlyData);
   } catch (error) {
     console.log(error.message);
@@ -1077,8 +1111,148 @@ const yearData = async (req, res) => {
       const totalSales = result.length > 0 ? result[0].totalSales : 0;
       yearlyData.push(totalSales);
     }
-    console.log(yearData);
+    // console.log(yearData);
     res.json(yearlyData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const salesReport = async (req, res) => {
+  try {
+    const reportType = req.body.reportType;
+    const fileFormat = req.body.fileFormat;
+
+    console.log(reportType, fileFormat);
+
+    const orders = await Order.find({ status: "delivered" }).populate(
+      "items.product user"
+    );
+
+    if (fileFormat === "pdf") {
+      // Generate PDF report
+      const doc = new PDFDocument();
+
+      // Set the table header styles
+      const tableHeaderStyle = {
+        fontSize: 14,
+        bold: true,
+      };
+
+      // Set the table content styles
+      const tableContentStyle = {
+        fontSize: 10,
+      };
+
+      // Set the initial Y position for the table
+      let yPos = 100;
+
+      // Draw the table header
+      doc.font("Helvetica-Bold").fontSize(12);
+      doc.text("Order ID", 50, yPos, { continued: true });
+      doc.text("Customer Name", 150, yPos);
+      doc.text("Total Amount", 400, yPos);
+      doc
+        .moveTo(50, yPos + 15)
+        .lineTo(400, yPos + 15)
+        .stroke(); // Draw horizontal line
+      yPos += 25;
+
+      // Draw the table content
+      doc.font("Helvetica").fontSize(10);
+      orders.forEach((order) => {
+        doc.text(order._id.toString(), 50, yPos, { continued: true });
+        doc.text(order.user.name, 150, yPos);
+        doc.text(order.totalPrice, 400, yPos);
+        // doc.text(order.paymentMethod, 700, yPos);
+        doc
+          .moveTo(50, yPos + 15)
+          .lineTo(500, yPos + 15)
+          .stroke(); // Draw horizontal line
+        yPos += 25;
+
+        // order.items.forEach((item) => {
+        //   doc.text(item.product.name, 50, yPos, { continued: true });
+        //   doc.text(item.quantity, 200, yPos);
+        //   doc.text(item.price, 300, yPos);
+        //   doc.moveTo(50, yPos + 15).lineTo(400, yPos + 15).stroke(); // Draw horizontal line
+        //   yPos += 25;
+        // });
+
+        doc
+          .moveTo(50, yPos - 50)
+          .lineTo(50, yPos)
+          .stroke(); // Draw left vertical line
+        doc
+          .moveTo(200, yPos - 50)
+          .lineTo(200, yPos)
+          .stroke(); // Draw middle vertical line
+        doc
+          .moveTo(400, yPos - 50)
+          .lineTo(400, yPos)
+          .stroke(); // Draw right vertical line
+      });
+
+      // Draw bottom horizontal line
+      doc.moveTo(50, yPos).lineTo(400, yPos).stroke();
+
+      // Draw the final vertical line to close the table content
+      doc
+        .moveTo(400, yPos - 50)
+        .lineTo(400, yPos)
+        .stroke();
+
+      doc.end();
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=sales_report.pdf"
+      );
+
+      doc.pipe(res);
+    } else if (fileFormat === "excel") {
+      // Generate Excel report
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Sales Report");
+
+      // Set the column headers
+      worksheet.columns = [
+        { header: "Order ID", key: "_id", width: 30 },
+        { header: "Customer Name", key: "user.name", width: 30 },
+        { header: "Total Amount", key: "totalPrice", width: 15 },
+        { header: "Payment Method", key: "paymentMethod", width: 15 },
+      ];
+
+      // Add data rows to the worksheet
+      orders.forEach((order) => {
+        worksheet.addRow({
+          _id: order._id.toString(),
+          "user.name": order.user.name,
+          totalPrice: order.totalPrice.toString(),
+          paymentMethod: order.paymentMethod.toString(),
+        });
+      });
+
+      // Generate the Excel file buffer
+      const excelBuffer = await workbook.xlsx.writeBuffer();
+
+      // Set the appropriate headers for file download
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=sales_report.xlsx"
+      );
+
+      // Send the generated Excel file as the response
+      res.send(excelBuffer);
+    } else {
+      throw new Error("Invalid file format");
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -1133,4 +1307,6 @@ module.exports = {
   editOffer,
   updateOffer,
   changePrice,
+  salesReport,
+  deletesOffer,
 };

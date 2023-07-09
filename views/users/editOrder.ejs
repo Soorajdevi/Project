@@ -64,7 +64,7 @@
       id="ftco-navbar"
     >
       <div class="container">
-        <a class="navbar-brand" href="index.html">Winkel</a>
+        <a class="navbar-brand" href="/home">Winkel</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -82,34 +82,13 @@
             <li class="nav-item">
               <a href="/home" class="nav-link">Home</a>
             </li>
-            <li class="nav-item dropdown active">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="dropdown04"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                >Shop</a
-              >
-              <div class="dropdown-menu" aria-labelledby="dropdown04">
-                <a class="dropdown-item" href="shop.html">Shop</a>
-                <a class="dropdown-item" href="product-single.html"
-                  >Single Product</a
-                >
-                <a class="dropdown-item" href="cart.html">Cart</a>
-                <a class="dropdown-item" href="checkout.html">Checkout</a>
-              </div>
-            </li>
             <li class="nav-item">
-              <a href="about.html" class="nav-link">About</a>
+              <a href="/shop" class="nav-link">shop</a>
             </li>
+           
             <li class="nav-item">
-              <a href="blog.html" class="nav-link">Blog</a>
-            </li>
-            <li class="nav-item">
-              <a href="contact.html" class="nav-link">Contact</a>
-            </li>
+              <a href="/profile" class="nav-link">profile</a>
+           
             <li class="nav-item cta cta-colored">
               <a href="cart.html" class="nav-link"
                 ><span class="icon-shopping_cart"></span>[0]</a
@@ -140,13 +119,15 @@
           <div class="row">
             <div class="col-lg-4 col-md-6 col-sm-12">
               <div class="shadows">
-                <button style="background-color: white;" class="mt-3">Download</button>
+                <button style="background-color: white;" data-order-id="<%= orders._id %>" class="mt-3 download-btn">Download</button>
+                
+
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div id="confirm-dialog" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; width: 500px; height: 200px; border: none; text-align: center;" class="shadow">
+      <div id="confirm-dialog" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  background-color: #130d0d; max-width: 300px; width: 300px;  border: none; text-align: center; z-index: 1; min-height: 200px; padding: 10px 20px;" class="shadow">
         <p style="color: black; font-weight: bold" class="mt-2 text-left">Are you sure you want to return this product?</p>
         <form  id="return-form" >
         <div class="">
@@ -349,21 +330,9 @@
       </svg>
     </div>
 
-    <script>
-      //      function enableInputs() {
-      //     const inputFields = document.querySelectorAll('input[type="text"]');
-      //     inputFields.forEach(field => {
-      //       field.removeAttribute('readonly');
-      //     });
-      //   }
+   
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-      //   function disableInputs() {
-      //     const inputFields = document.querySelectorAll('input[type="text"]');
-      //     inputFields.forEach(field => {
-      //       field.setAttribute('readonly', '');
-      //     });
-      //   }
-    </script>
 
 
 <script>
@@ -413,6 +382,54 @@ function hideDialog() {
 
 </script>
 
+
+<script>
+$(document).ready(function() {
+  $('.download-btn').click(function() {
+    const orderId = $(this).data('order-id');
+    console.log(orderId);
+
+    $.ajax({
+      url: '/editorder', 
+      method: 'POST', 
+      data: { orderId: orderId },
+      xhrFields: {
+        responseType: 'arraybuffer' // Ensure the response type is set to arraybuffer
+      },
+      success: function(fileData) {
+        console.log(fileData);
+
+        // Create a Blob from the file data
+        const blob = new Blob([fileData], { type: "application/pdf" });
+
+        // Create a temporary URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = "invoice.pdf";
+
+        // Trigger the download
+        downloadLink.click();
+
+        // Clean up the temporary URL
+        URL.revokeObjectURL(url);
+      },
+      error: function(xhr, status, error) {
+        console.log('Error:', error);
+      }
+    });
+  });
+});
+
+
+
+
+</script>
+<script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
+<script src="https://unpkg.com/pdfjs-dist/build/pdf.worker.min.js"></script>
+<script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/jquery-migrate-3.0.1.min.js"></script>
     <script src="js/popper.min.js"></script>

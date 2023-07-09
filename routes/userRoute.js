@@ -38,7 +38,7 @@ router.get("/shop",auth.isLogged,  userController.getShop);
 
 router.post("/shop",auth.isLogged,  userController.getShop);
 
-router.get("/shopfilter",auth.isLogged,  userController.shopFilter);
+router.post("/shopfilter",auth.isLogged,  userController.shopFilter);
 
 
 
@@ -87,6 +87,7 @@ router.post("/order",userController.cancelOrder)
 
 router.get("/editorder",userController.editOrder)
 
+router.post("/editorder",userController.invoice)
 
 
 // router.post("/order",userController.CreateOrder)

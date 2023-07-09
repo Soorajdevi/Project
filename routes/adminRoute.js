@@ -90,11 +90,14 @@ router.post("/repay",adminController.rePayamount)
 
 router.get("/admindashboard",adminController.loadAdmin)
 
+router.post("/sale" ,adminController.salesReport)
 
 
 router.get("/offer",adminController.offerManagment)
 
 router.post("/offer",adminController.changePrice)
+
+router.post("/offer/delete",adminController.deletesOffer)
 
 
 router.get("/offer/addoffer",adminController.loadaddoffer)

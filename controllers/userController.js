@@ -15,6 +15,8 @@ const { UserInstance } = require("twilio/lib/rest/chat/v1/service/user");
 const Banner = require("../models/banner");
 const Category = require("../models/categorySchema");
 const Offer = require("../models/offerSchema");
+const easyinvoice= require('easyinvoice')
+const fs = require("fs");
 
 const crypto = require("crypto");
 const { rawListeners } = require("process");
@@ -220,12 +222,9 @@ const userLogout = (req, res) => {
 };
 const getShop = async (req, res) => {
   try {
-    
-
-  
-
     const filterOptions = {};
-
+    // const price =req.query.priceRange
+    // console.log(price)
     if (req.query.priceRange) {
       const [minPrice, maxPrice] = req.query.priceRange.split("-");
       filterOptions.price = { $gte: minPrice, $lte: maxPrice };
@@ -262,7 +261,6 @@ const getShop = async (req, res) => {
       totalPages: totalPages,
       currentPage: page,
       user: user,
-    
     });
   } catch (error) {
     console.error(error.message);
@@ -272,14 +270,17 @@ const getShop = async (req, res) => {
 
 const shopFilter = async (req, res) => {
   try {
-    const category = req.query.cata;
-    console.log(category);
-    const newcata = await Category.findOne({ name: category });
+    const price =req.query.filterPriceRange
+    console.log(price)
+    const selectedCategory = req.body.category;
+    console.log(selectedCategory);
+    const newcata = await Category.findOne({ name: selectedCategory });
     // console.log(newcata)
     const id = newcata._id;
     console.log(id);
     const product = await Product.find({ categoryId: id });
     console.log(product);
+    res.json(product)
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -830,6 +831,100 @@ const editOrder = async (req, res) => {
   }
 };
 
+const invoice = async (req, res) => {
+  try {
+    const orderId = req.body.orderId;
+    const order = await Order.findById(orderId)
+      .populate({
+        path: "items.product",
+        model: "Product",
+      })
+      .populate("user"); // Populate the "user" field
+    
+    console.log("Order:", order);
+    
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    
+    const user = order.user;
+    console.log("User:", user);
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    const shippingAddressId = order.shippingAddress;
+    const shippingAddress = user.addresses.find(
+      (address) => address._id && address._id.toString() === shippingAddressId.toString()
+    );
+    console.log("Shipping Address:", shippingAddress);
+    
+    if (!shippingAddress) {
+      throw new Error("Shipping address not found");
+    }
+    
+    const invoiceData = await generateInvoice(order, shippingAddress);
+
+    // Set the appropriate headers for file download
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=invoice.pdf`);
+
+    // Send the invoice data as the response
+    res.send(invoiceData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
+async function generateInvoice(order, shippingAddress) {
+  const invoiceData = {
+    currency: "USD",
+    taxNotation: null, // or gst
+    marginTop: 25,
+    marginRight: 25,
+    marginLeft: 25,
+    marginBottom: 25,
+    "images": {
+      "logo": "https://drive.google.com/uc?export=download&id=1dMlX3qopqC_ONzgfxcjG2rxG4Ur-URcY" ,
+      "background": ""
+    },
+    sender: {
+      company: "WINKEL Ecommerce",
+      address: "padanilam Town,Nooranad ,Alappuzha,690529",
+      email: "hanginghammer21@gmail.com",
+      phone: "7025927638",
+    },
+    client: {
+      company: shippingAddress.firstname,
+      address: shippingAddress.address,
+      city: shippingAddress.state,
+      zip: shippingAddress.mobile,
+    },
+    "information": {
+      "number": "INV" + Math.random().toString(36).substring(2),
+      "date":  new Date().toLocaleDateString(),
+     
+      }, 
+    products: order.items.map((item) => ({
+      quantity: item.quantity,
+      description: item.product.name,
+      "tax-rate": 0, 
+      price: item.product.price
+    })),
+    bottomNotice: "Thank you for your business!",
+  };
+
+  const result = await easyinvoice.createInvoice(invoiceData);
+  const pdfBuffer = Buffer.from(result.pdf, "base64");
+
+  return pdfBuffer;
+}
+
+
+
 const CreateOrder = async (req, res) => {
   try {
     const addressId = req.body.selectedItemId;
@@ -1219,4 +1314,5 @@ module.exports = {
   searchProduct,
   shopFilter,
   verifyPayment,
+  invoice,
 };

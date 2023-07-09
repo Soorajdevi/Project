@@ -80,12 +80,7 @@
             <li class="nav-item">
               <a href="/profile" class="nav-link">Profile</a>
             </li>
-            <li class="nav-item">
-              <a href="" class="nav-link">Blog</a>
-            </li>
-            <li class="nav-item">
-              <a href="" class="nav-link">Contact</a>
-            </li>
+            
             <li class="nav-item cta cta-colored">
               <a href="" class="nav-link"
                 ><span class="icon-shopping_cart"></span>[0]</a
@@ -116,6 +111,18 @@
       </div>
     </div>
 
+
+
+
+
+
+    <% if (cart.items.length === 0) { %>
+      <div class="empty-cart" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <img class="" src="/images/vecteezy_basket-retail-shopping-cart-blue-icon-on-abstract-cloud_13281925.jpg" alt="" style="width: 50%; height: 400px;">
+        <h3 class=""  style="font-family: Arial, Helvetica, sans-serif; font-style: italic; color: gray;">Your cart is empty</h3>
+      </div>
+      
+<% } else { %>
     <section class="ftco-section ftco-cart">
       <div class="container">
         <div class="row d-flex">
@@ -261,11 +268,7 @@
                   <span id="delivery"><%= (cart.subtotal * 0.1).toFixed() %></span>
                 </p>
 
-                <!-- <p class="d-flex">
-                  <span>Discount</span>
-                  <span id="discount"><%= 5 %></span>
-                </p> -->
-
+              
                 <hr />
 
                 <p class="d-flex total-price">
@@ -339,16 +342,16 @@
       </div>
       </div>
     </section>
-
+    <% } %>
     <footer class="ftco-footer bg-light ftco-section">
       <div class="container">
         <div class="row">
           <div class="mouse">
-            <a href="#" class="mouse-icon">
+            <!-- <a href="#" class="mouse-icon">
               <div class="mouse-wheel">
                 <span class="ion-ios-arrow-up"></span>
               </div>
-            </a>
+            </a> -->
           </div>
         </div>
         <div class="row mb-5">

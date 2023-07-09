@@ -42,6 +42,11 @@ const productSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  offerprice:{
+    type:Number,
+    required:true,
+    default:0
+  }
 });
 
 const Product = mongoose.model("Product", productSchema);

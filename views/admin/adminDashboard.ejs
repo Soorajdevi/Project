@@ -388,16 +388,7 @@
                 <span class="menu-title">Users</span>
                 <!-- <i class="menu-arrow"></i> -->
               </a>
-              <!-- <div class="collapse" id="charts">
-                <ul class="nav flex-column sub-menu">
-                  <li class="nav-item">
-                    <a class="nav-link" href="../../pages/charts/chartjs.html"
-                      >ChartJs</a
-                    >
-                  </li>
-                </ul>
-              </div>
-            </li> -->
+            
             <li class="nav-item">
               <a
                 class="nav-link"
@@ -473,9 +464,10 @@
             <div class="animated fadeIn">
                 <!-- Widgets  -->
                 <div class="row mt-5">
+                  
                     <div class="col-lg-3 col-md-6">
                         <div class="card d-flex">
-                            <div class="card-body">
+                            <div class="card-body" style="background-color: rgb(231, 229, 227);">
                                 <div class="stat-widget-five">
                                     <div class="stat-icon dib flat-color-1">
                                         <i class="pe-7s-cash"></i>
@@ -494,13 +486,14 @@
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body" style="background-color: rgb(231, 229, 227);">
                                 <div class="stat-widget-five">
                                     <div class="stat-icon dib flat-color-2">
                                         <i class="pe-7s-cart"></i>
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                          <i class="fa-sharp fa-solid fa-universal-access" style="color: greenyellow; width: 70px;"></i>
                                             <div class="stat-text"><span class="count">3435</span></div>
                                             <div class="stat-heading">Sales</div>
                                         </div>
@@ -511,7 +504,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body " style="background-color: rgb(231, 229, 227);">
                                 <div class="stat-widget-five">
                                     <div class="stat-icon dib flat-color-3">
                                         <i class="pe-7s-browser"></i>
@@ -526,15 +519,44 @@
                             </div>
                         </div>
                     </div>
+                    <div id="confirm-dialog" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);  background-color: #130d0d; max-width: 300px; width: 300px;  border: none; text-align: center; z-index: 1; min-height: 200px; padding: 10px 20px;" class="shadow">
+                      <!-- <p style="color: black; font-weight: bold" class="mt-2 text-left">Are you sure you want to return this product?</p> -->
+                      <!-- <form  id="return-form" > -->
+                      <div class="">
+                        <!-- <label class="text-left" for="return-reason">Reason for Return:</label> -->
+                        <select id="return-reason" class="form-control">
+                          <option value="sales">Sales</option>
+                          <option value="return">Return</option>
+                          
+                          <!-- Add more options as needed -->
+                        </select>
+                      </div>
+                      
+                      <div class="mt-2">
+                        <label class="text-left" for="resolution-type">Format</label>
+                        <select id="resolution-type" class="form-control">
+                          <option value="pdf">pdf</option>
+                          <option value="excel">excel</option>
+                          <!-- Add more options as needed -->
+                        </select>
+                      </div>
+                     
+                      <div class="sub">
+                        <button  id="submit-btn"  class=" btn btn-primary" >Submit</button>
+                      </div>
                     
+                      
+                      <!-- </form> -->
+                     
+                    </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body" style="background-color: rgb(231, 229, 227);">
                                 <div class="stat-widget-five">
                                     <div class="stat-icon dib flat-color-4">
                                         <i class="pe-7s-users"></i>
                                     </div>
-                                    <div class="stat-content">
+                                    <div class="stat-content" >
                                         <div class="text-left dib">
                                             <div class="stat-text"><span class="count"><%= usercount %></span></div>
                                             <div class="stat-heading">Clients</div>
@@ -546,71 +568,33 @@
                     </div>
                 </div>
             </div>
-            <div class="main-panel">
-                <div class="content-wrapper">
-                  <div class="row">
-                    <div class="col-lg-6 grid-margin stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Line chart</h4>
-                          <div class="d-flex justify-content-end mb-3">
-                            <select id="timeRangeDropdown">
-                              <option value="weekly">Weekly</option>
-                              <option value="monthly">Monthly</option>
-                              <option value="yearly">Yearly</option>
-                            </select>
-                          </div>
-                          <canvas id="lineChart"></canvas>
+          
+              <div class="content-wrapper">
+                <div class="row">
+                  <div class="d-flex justify-content-end mb-3">
+                   <button onclick="showDialog()">Reports</button>
+                  </div>
+                  <div class="  col-lg-8 grid-margin stretch-card">
+                    <div class="card">
+                      
+                      <div class="card-body">
+                        <h4 class="card-title">Sales Data</h4>
+                        <div class="d-flex justify-content-end mb-3">
+                          <select id="timeRangeDropdown">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                          </select>
                         </div>
+                        <canvas id="lineCharts"></canvas>
                       </div>
                     </div>
                   </div>
-                  
-                    <!-- <div class="col-lg-6 grid-margin stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Bar chart</h4>
-                          <canvas id="barChart"></canvas>
-                        </div>
-                      </div>
-                    </div> -->
-                  </div>
-                  <!-- <div class="row">
-                    <div class="col-lg-6 grid-margin stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Area chart</h4>
-                          <canvas id="areaChart"></canvas>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-6 grid-margin stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Doughnut chart</h4>
-                          <canvas id="doughnutChart"></canvas>
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
-                  <!-- <div class="row"> -->
-                    <!-- <div class="col-lg-6 grid-margin grid-margin-lg-0 stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Pie chart</h4>
-                          <canvas id="pieChart"></canvas>
-                        </div>
-                      </div>
-                    </div> -->
-                    <!-- <div class="col-lg-6 grid-margin grid-margin-lg-0 stretch-card">
-                      <div class="card">
-                        <div class="card-body">
-                          <h4 class="card-title">Scatter chart</h4>
-                          <canvas id="scatterChart"></canvas>
-                        </div>
-                      </div>
-                    </div> -->
-                  <!-- </div> -->
+                </div>
+                
+              </div>
+              
+      
                
              <footer class="footer">
               <div class="d-sm-flex justify-content-center justify-content-sm-between">
@@ -618,32 +602,49 @@
                 <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Winkle World class of collection new trends  <a href="https://www.bootstrapdash.com/" target="_blank"> </a></span>
               </div>
             </footer>
-        </div>
+       
 
         <script>
 
        // Get the selected time range from the dropdown
        const timeRangeDropdown = document.getElementById('timeRangeDropdown');
+
+// Fetch weekly data initially and update the chart
+(async () => {
+  const weeklyData = await fetchWeeklyData();
+  const labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const data = weeklyData.map(day => day.totalSales);
+  const chartData = {
+    labels: labels,
+    datasets: [{
+      label: '# of Sales',
+      data: data,
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1,
+      fill: false
+    }]
+  };
+  updateChart(chartData);
+})();
+
 timeRangeDropdown.addEventListener('change', async () => {
   const selectedTimeRange = timeRangeDropdown.value;
   let labels = [];
   let data = [];
 
   if (selectedTimeRange === 'weekly') {
-    // Fetch weekly data from the backend
     const weeklyData = await fetchWeeklyData();
     labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     data = weeklyData.map(day => day.totalSales);
   } else if (selectedTimeRange === 'monthly') {
-    // Fetch monthly data from the backend
     const monthlyData = await fetchMonthlyData();
     const currentMonth = new Date().getMonth();
     labels = getMonthLabels(currentMonth);
     data = monthlyData.slice(0, currentMonth + 1);
   } else if (selectedTimeRange === 'yearly') {
-    // Fetch yearly data from the backend
     const yearlyData = await fetchYearlyData();
-    labels = ['2018','2019','2020','2021','2022','2023'];
+    labels = ['2018', '2019', '2020', '2021', '2022', '2023'];
     data = yearlyData;
   }
 
@@ -661,21 +662,22 @@ timeRangeDropdown.addEventListener('change', async () => {
 
   updateChart(chartData);
 });
-
 async function fetchWeeklyData() {
-  const response = await fetch('/admin/week'); // Replace with your actual API endpoint for weekly data
+  const response = await fetch('/admin/week'); 
   const data = await response.json();
+  console.log(data)
   return data;
 }
 
 async function fetchMonthlyData() {
-  const response = await fetch('/admin/month'); // Replace with your actual API endpoint for monthly data
+  const response = await fetch('/admin/month'); 
   const data = await response.json();
+  console.log(data)
   return data;
 }
 
 async function fetchYearlyData() {
-  const response = await fetch('/admin/year'); // Replace with your actual API endpoint for yearly data
+  const response = await fetch('/admin/year');
   const data = await response.json();
   return data;
 }
@@ -683,16 +685,19 @@ async function fetchYearlyData() {
 // Function to update the chart with new data
 function updateChart(data) {
   // Retrieve the chart element
-  const lineChart = document.getElementById('lineChart');
+  const lineChart = document.getElementById('lineCharts');
 
-  // Create the chart using Chart.js library
-  new Chart(lineChart, {
-    type: 'line',
-    data: data,
-    options: {
-      // Add any additional options and styling as needed
-    }
-  });
+  // Check if the chart already exists
+  if (lineChart) {
+    // Create the chart using Chart.js library
+    new Chart(lineCharts, {
+      type: 'line',
+      data: data,
+      options: {
+        // Add any additional options and styling as needed
+      }
+    });
+  }
 }
 
 // Function to get the labels for the monthly data
@@ -700,16 +705,91 @@ function getMonthLabels(currentMonth) {
   const monthLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   return monthLabels.slice(0, currentMonth + 1);
 }
+// Define the default time range
+
 
   </script>
+<script>
+function showDialog() {
+        
+  $("#confirm-dialog").show();
+}
 
 
+function hideDialog() {
+        $("#confirm-dialog").hide();
+      }
+
+</script>
+
+<script>
+  document.getElementById('submit-btn').addEventListener('click', submitForm);
+  function submitForm() {
+  const reportType = document.getElementById('return-reason').value;
+  const fileFormat = document.getElementById('resolution-type').value;
+
+  const data = {
+    reportType: reportType,
+    fileFormat: fileFormat
+  };
+
+  $.ajax({
+    url: '/admin/sale',
+    method: 'POST',
+    data: data,
+    xhrFields: {
+      responseType: 'arraybuffer' 
+    },
+    success: function(response) {
+      if (fileFormat === 'pdf') {
+        // Create a Blob from the PDF file data
+        const blob = new Blob([response], { type: 'application/pdf' });
+
+        // Create a temporary URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'sales_report.pdf';
+
+        // Trigger the download
+        downloadLink.click();
+
+        // Clean up the temporary URL
+        URL.revokeObjectURL(url);
+      } else if (fileFormat === 'excel') {
+        // Create a Blob from the Excel file data
+        const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+        // Create a temporary URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'sales_report.xlsx';
+
+        // Trigger the download
+        downloadLink.click();
+
+        // Clean up the temporary URL
+        URL.revokeObjectURL(url);
+      }
+    },
+    error: function(error) {
+      console.error(error);
+    }
+  });
+
+  hideDialog();
+}
 
 
+</script>
 
 
-
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
         <!-- endinject -->
