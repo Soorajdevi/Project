@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({ body: true });
 
 const adminController = require("../controllers/adminController");
-const upload =require("../middleware/multer")
+const  upload =require("../middleware/multer")
 
 const adminAuth=require("../middleware/adminAuth")
 
@@ -39,7 +39,7 @@ router.get("/product",adminController.getproduct)
 router.get("/product/addproduct",adminController.getAddproduct)
 
 
-router.post("/product/addproduct" ,upload.array('image', 2)  ,adminController.addProduct)
+router.post("/product/addproduct" ,upload.array('image', 2),adminController.addProduct)
 
 router.get("/product/editProduct/:id",adminController.editProduct)
 

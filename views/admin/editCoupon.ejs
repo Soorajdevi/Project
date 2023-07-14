@@ -432,30 +432,31 @@
         </nav>
 
         <section class="container p-4">
-          <form action="/admin/coupon/editcoupon/<%=coupon._id%>" method="post" >
+          <form id="offerForm" >
           <div class="container bg-light shadow-sm mt-4" style=" border-radius: 14px; height: 42em;">
               <div class="row p-5 " >
                 <div class="col-md-6">
+                  <div id="error-message" class="mb-4 text-center" style=" color: rgb(20, 16, 16); display: none;background-color: rgb(243, 117, 117); height: 30px;"></div>
                   <h3 class="mr-3 " style="color:gray;font-size: medium;"> Code</h3>
-                <input class="shadow" type="text" style="width: 90%; height: 40px; border-radius: 5px; " name="code" value="<%=coupon.code%>"  id="code" required>
+                <input class="shadow" type="text" style="width: 90%; height: 40px; border-radius: 5px; " name="code" value="<%=coupon.code%>"   required>
                 </div>
                 <!-- addproduct.ejs -->
-
+               
                 <div class="col-md-6">
                   <h3 class="mr-3 " style="color:gray;font-size: medium;">Discount</h3>
-                <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;"  value="<%=coupon.discount%>"  name="discount" id="discount" required>
+                <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;"  value="<%=coupon.discount%>"  name="discount"  required>
                
                 </div>
 
                   <div class="col-md-6 mt-4">
                     <h3 class=" " style="color:gray;font-size: medium;">Expirydate</h3>
                     <% const dateStr = coupon.validUntil.toISOString(); %>
-                  <input class="shadow" type="date" style="width: 90%; height: 40px;  border-radius: 5px;"    value="<%= dateStr.slice(0, 10) %>"  name="validUntil" id="valid" required>
+                  <input class="shadow" type="date" style="width: 90%; height: 40px;  border-radius: 5px;"    value="<%= dateStr.slice(0, 10) %>"  name="validUntil" required>
                  
                   </div>
                   <div class="col-md-6 mt-4">
                     <h3 class="mr-3" style="color:gray;font-size: medium;">Minvalue</h3>
-                  <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;"  value="<%=coupon.minValue%>"  name="minValue" id="minvalue" >
+                  <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;"  value="<%=coupon.minValue%>"  name="minValue"  required >
                  
                   </div>
 
@@ -468,7 +469,7 @@
 
                   
                   <div class="col-md-12 mt-4  ">
-                    <button class="btn btn-success mt-2 mx-2" type="submit">Save</button>
+                    <button  id="addOfferBtn" class="btn btn-success mt-2 mx-2" >Save</button>
                   </div>
                 
               </div>
@@ -479,9 +480,42 @@
         </section>
 
       </div>
-<style>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-</style>
+      <script>
+  $(document).ready(function() {
+  // Event handler for form submission
+  $('#offerForm').submit(function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const couponId = "<%= coupon._id %>";
+      const formData = $("#offerForm").serialize();
+    console.log(formData)
+
+    $.ajax({
+      url: "/admin/coupon/editcoupon/" + couponId,
+      method: "POST",
+      data: formData,
+     
+      success: function(response) {
+        if (response) {
+          console.log(response);
+          if (response === "success") {
+            window.location.href = "/admin/coupon";
+          } else {
+            console.log(response);
+            $("#error-message").text(response).show();
+          }
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error(error);
+      },
+    });
+  });
+});
+
+      </script>
 
       </body>
 

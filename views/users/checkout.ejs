@@ -110,6 +110,11 @@
       </div>
     </div>
 
+    <div id="confirm-dialog" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; width: 500px; height: 150px; border: none; text-align: center;" class="shadow">
+      <p style="color: black; font-weight: bold" class="mt-2" id="addressMessage">Please select a Shipping Address</p>
+      <p style="color: black; font-weight: bold" class="mt-2" id="paymentMessage">Please select a Payment Method</p>
+      <button onclick="hideDialog()" class="btn btn-primary w-25">OK</button>
+    </div>
     <section class="ftco-section">
       <div class="container">
         <div class="row">
@@ -148,6 +153,7 @@
               </div>
             </div>
             <% }); %>
+           
             <div class="row d-flex justify-content-center shadow-sm border mt-5 p-3">
               <div class="col-md-8">
                 <a href="/address">
@@ -227,29 +233,7 @@
           
           </div>
         </div>
-        <!-- <form action="/payment" method="post" class="billing-form">
-          <p style="font-weight: bold;">Choose Payment Method</p>
        
-          <div class="row shadow">
-              <div class="col-lg-4  " style="color: rgb(46, 45, 45); font-weight: 700; background-color: #f0f0f0;">
-                  <p>Recommended</p>
-                  <hr>
-                   <p><i class="fa-sharp fa-solid fa-money-bill-1-wave mx-2"></i>Cash On Delivery</p>
-                  <hr>
-                  <p>UPI</p>
-                 
-              </div>
-              <div class="col-lg-8 text-center">
-                <label>
-                  <input type="radio" name="paymentMethod" value="cash_on_delivery" checked >
-                  Cash_on_delivery
-                </label>
-                  <div class="net mt-5"><button type="submit" style="background-color: #ffa45c; border: none;" class="shadow-sm">PLACE ORDER</button>
-
-              </div>
-              </div>
-          </div>
-        </form> -->
       </div>
     </section>
 
@@ -401,16 +385,23 @@ document.getElementById("continueBtn").addEventListener("click", function (e) {
   const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
   const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
-  if (!selectedAddress) {
-    e.preventDefault();
-    return alert("Please select a shipping address");
-  }
+  if (!selectedAddress && !selectedMethod) {
+        showDialog("address");
+        e.preventDefault();
+        return;
+      }
 
-  if (!selectedMethod) {
-    e.preventDefault();
-    return alert("Please select a payment method");
-  }
+      if (!selectedAddress) {
+        showDialog("address");
+        e.preventDefault();
+        return;
+      }
 
+      if (!selectedMethod) {
+        showDialog("payment");
+        e.preventDefault();
+        return;
+      }
   fetch('/checkout', {
     method: 'POST',
     headers: {
@@ -442,9 +433,33 @@ document.getElementById("continueBtn").addEventListener("click", function (e) {
 
   console.log(selectedAddress);
 });
+function showDialog(messageType) {
+        const addressMessage = document.getElementById("addressMessage");
+        const paymentMessage = document.getElementById("paymentMessage");
+
+        if (messageType === "address") {
+          addressMessage.style.display = "block";
+          paymentMessage.style.display = "none";
+        } else if (messageType === "payment") {
+          addressMessage.style.display = "none";
+          paymentMessage.style.display = "block";
+        }
+
+        $("#confirm-dialog").show();
+      }
+
+      // hideDialog function definition
+      function hideDialog() {
+        $("#confirm-dialog").hide();
+      }
+
+
+      function hideDialog() {
+        $("#confirm-dialog").hide();
+      }
 
 function razorpayPayment(order, selectedMethod, selectedAddress) {
-  console.log(selectedAddress,selectedMethod + "sreeeraju")
+  console.log(selectedAddress,selectedMethod )
   var options = {
     key: "rzp_test_wuu2yhm284NSc9", // Enter the Key ID generated from the Dashboard
     amount: order.amount, 

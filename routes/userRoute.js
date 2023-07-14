@@ -28,15 +28,20 @@ router.post("/forgetVerify",userController.restpass)
 
 
 // still not used
-router.post("/generateOTP", userController.sendOTP);
+// router.post("/generateOTP", userController.sendOTP);
 
-router.post("/login", auth.notLoggd, userController.verifyOtp);
+router.post("/verify", userController.verifyOtp);
+
+router.post("/resend", userController.resendOtp);
+
 
 router.get("/logout", userController.userLogout);
 
 router.get("/shop",auth.isLogged,  userController.getShop);
 
 router.post("/shop",auth.isLogged,  userController.getShop);
+
+router.get("/shopprice",auth.isLogged,userController.getPricefilter)
 
 router.post("/shopfilter",auth.isLogged,  userController.shopFilter);
 
@@ -117,7 +122,7 @@ router.post("/manageaddress/edit/:id",userController.UpdateprofileAddress)
 
 router.get("/manageaddress/delete/:id",userController.deleteAddress)
 
-
+router.get("/wallet",userController.wallet)
 
 
 module.exports = router;

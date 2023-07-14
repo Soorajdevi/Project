@@ -200,7 +200,14 @@
                       </button>
                     </div>
 
-                    <td class="price"><%=item.product.price %></td>
+                    <td class="price">
+                      <% if (item.product.offerprice) { %>
+                        <%= item.product.offerprice %>
+                      <% } else { %>
+                        <%= item.product.price %>
+                      <% } %>
+                    </td>
+                    
                     <td
                       class="quantity w-100 mt-4 d-flex justify-content-center"
                     >
@@ -244,8 +251,13 @@
                       value="<%= item.product._id %>"
                     />
                     <td class="total" id="total-price-<%= item.product._id %>">
-                      <%= item.price %>
+                      <% if (item.product.offerprice) { %>
+                        <%= item.product.offerprice %>
+                      <% } else { %>
+                        <%= item.price %>
+                      <% } %>
                     </td>
+                    
                   </tr>
                   <%}) %>
                 </tbody>
@@ -256,7 +268,7 @@
           <div class="col-md-4">
             <form action="/cart" method="post">
               <div class="cart-total mb-3">
-                >
+                
                 <h3>Cart Totals</h3>
                 <p class="d-flex">
                   <span>Subtotal</span>
@@ -333,7 +345,9 @@
           <span style="font-weight: bold; color: #fac45a;">
             Remove Coupon -
           <a href="/removecoupon">
+            
               <i class="fa-solid fa-trash" style="color: black;"></i>
+              
             </a>
           </span>
           
@@ -554,9 +568,11 @@ $(document).ready(function() {
 
               if (data.newPrice) {
                 document.getElementById("subtotal").innerText =
-                  data.newPrice.toFixed(2);
-
-                // Optionally, you can perform additional actions here
+                  data.newPrice.toFixed();
+                  const deliveryElement = document.getElementById("delivery");
+              deliveryElement.innerText = (data.newPrice * 0.1).toFixed(); 
+              const totalElement = document.getElementById("total");
+totalElement.innerText = (data.newPrice + data.newPrice * 0.1).toFixed(0);
               }
               couponMessage.style.color = "red";
             })
@@ -566,25 +582,7 @@ $(document).ready(function() {
         });
 
       $(document).ready(function () {
-        //         function recalculateSubtotal() {
-        //   var subtotal = 0;
-        //   $(".item-total-price").each(function () {
-        //     var quantity = parseInt($(this).siblings(".input-group").find("input.quantity").val());
-        //     var price = parseFloat($(this).siblings(".price").text());
-        //     var total = quantity * price;
-        //     subtotal += total;
-        //   });
-        //   $("#subtotal").text(subtotal.toFixed(2));
-        //   return subtotal;
-        // }
-
-        // function updateTotal() {
-        //   var subtotal = recalculateSubtotal();
-        //   var delivery = subtotal * 0.1; // Calculate delivery fee
-        //   var discount = 5; // TODO: Calculate discount
-        //   var total = subtotal + delivery - discount;
-        //   $("#total").text(total.toFixed(2));
-        // }
+      
 
         $(".plus-btn").on("click", function () {
   var itemId = $(this).find("i").data("item-id");
@@ -642,14 +640,12 @@ $(".minus-btn").on("click", function () {
               subtotalElement.innerText = data.cart.subtotal; // Update the subtotal value in the DOM
 
               const deliveryElement = document.getElementById("delivery");
-              deliveryElement.innerText = data.cart.subtotal * 0.1; // Update the delivery value in the DOM
+              deliveryElement.innerText = (data.cart.subtotal * 0.1).toFixed(); // Update the delivery value in the DOM
 
-              // const discountElement = document.getElementById("discount");
-              // discountElement.innerText = 5; // Update the discount value in the DOM
+              
 
               const totalElement = document.getElementById("total");
-              totalElement.innerText =
-                data.cart.subtotal - data.cart.subtotal * 0.1 // Update the total value in the DOM
+totalElement.innerText = (data.cart.subtotal + data.cart.subtotal * 0.1).toFixed(0);
 
               $.ajax({
                 url: "/cart",
@@ -700,12 +696,11 @@ $(".minus-btn").on("click", function () {
               const deliveryElement = document.getElementById("delivery");
               deliveryElement.innerText = (response.cart.subtotal * 0.1).toFixed(); // Update the delivery value in the DOM
 
-              // const discountElement = document.getElementById("discount");
-              // discountElement.innerText = 5; // Update the discount value in the DOM
+              
 
               const totalElement = document.getElementById("total");
               totalElement.innerText =
-                (response.cart.subtotal - response.cart.subtotal * 0.1 ).toFixed(); // Update the total value in the DOM
+                (response.cart.subtotal + response.cart.subtotal * 0.1 ).toFixed(); // Update the total value in the DOM
 
             }
           },

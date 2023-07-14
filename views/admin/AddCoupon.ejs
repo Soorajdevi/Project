@@ -454,7 +454,7 @@
                   </div>
                   <div class="col-md-6 mt-4">
                     <h3 class="mr-3" style="color:gray;font-size: medium;">Minvalue</h3>
-                  <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;" name="minValue" id="minvalue" >
+                  <input class="shadow" type="number" style="width: 90%; height: 40px;  border-radius: 5px;" name="minValue" id="minvalue" required>
                  
                   </div>
 
@@ -464,9 +464,15 @@
                  
                   </div>
                    -->
-                   <p style="display: flex; justify-content: center; color: red;"  class="my-5">
-                    <span><%= locals.message? message:"" %></span>
-                  </p>
+                   <% if (locals.message) { %>
+                    <div class="alert alert-danger my-5"
+                     style="display: flex; justify-content: center; width:100%; color: rgb(212, 0, 0);" role="alert">
+                      <span><%= message %></span>
+                    </div>
+                  <% } %>
+                  
+
+                  
 
                   
                   <div class="col-md-12 mt-4  ">

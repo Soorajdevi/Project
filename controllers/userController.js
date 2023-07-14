@@ -15,12 +15,13 @@ const { UserInstance } = require("twilio/lib/rest/chat/v1/service/user");
 const Banner = require("../models/banner");
 const Category = require("../models/categorySchema");
 const Offer = require("../models/offerSchema");
-const easyinvoice= require('easyinvoice')
+const easyinvoice = require("easyinvoice");
 const fs = require("fs");
 
 const crypto = require("crypto");
 const { rawListeners } = require("process");
 const { offerManagment } = require("./adminController");
+const Return = require("../models/returnSchema");
 
 var instance = new Razorpay({
   key_id: "rzp_test_wuu2yhm284NSc9",
@@ -168,10 +169,34 @@ const insertUser = async (req, res) => {
       });
       await newOtp.save();
 
-      res.render("users/otp.ejs");
+      res.render("users/otp.ejs", { mobile: req.body.mobile });
     } else {
       res.redirect("/signUp?message=registration-failed");
     }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const resendOtp = async (req, res) => {
+  try {
+    const mobile = req.body.mobile;
+    console.log(mobile);
+    const otp = generateOTP();
+    client.messages
+      .create({
+        body: otp,
+        from: "+13159080660",
+        to: `+91${mobile}`,
+      })
+      .then((message) => console.log(message.sid));
+
+    const newOtp = new OTP({
+      mobile: req.body.mobile,
+      otp,
+    });
+    await newOtp.save();
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -220,15 +245,20 @@ const userLogout = (req, res) => {
     }
   });
 };
-const getShop = async (req, res) => {
+
+const getPricefilter = async (req, res) => {
   try {
     const filterOptions = {};
-    // const price =req.query.priceRange
-    // console.log(price)
-    if (req.query.priceRange) {
-      const [minPrice, maxPrice] = req.query.priceRange.split("-");
-      filterOptions.price = { $gte: minPrice, $lte: maxPrice };
+    const price = req.query.filterPriceRange;
+    console.log(price);
+
+    if (req.query.filterPriceRange) {
+      const [minPrice, maxPrice] = req.query.filterPriceRange.split("-");
+      filterOptions.offerprice = { $gte: minPrice, $lte: maxPrice };
     }
+
+    // Add stock filter
+    filterOptions.Stock = { $gt: 0 };
 
     let productsQuery;
 
@@ -237,6 +267,21 @@ const getShop = async (req, res) => {
     } else {
       productsQuery = Product.find({ isdeleted: false });
     }
+    const products = await productsQuery; // Execute the query
+    
+    res.json(products);
+    console.log(productsQuery);
+  } catch (error) {
+    console.log("Error verifying OTP:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const getShop = async (req, res) => {
+  try {
+    let productsQuery;
+
+    productsQuery = Product.find({ isdeleted: false });
 
     const sortType = req.query.sort || "asc";
     if (sortType === "asc") {
@@ -252,9 +297,11 @@ const getShop = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const paginatedProducts = products.slice(skip, skip + limit);
+    const filteredProducts = products.filter((product) => product.Stock > 0); // Apply stock filter for pagination
 
-    const totalPages = Math.ceil(products.length / limit);
+    const paginatedProducts = filteredProducts.slice(skip, skip + limit);
+
+    const totalPages = Math.ceil(filteredProducts.length / limit);
     console.log(totalPages);
     res.render("users/shop.ejs", {
       products: paginatedProducts,
@@ -270,17 +317,17 @@ const getShop = async (req, res) => {
 
 const shopFilter = async (req, res) => {
   try {
-    const price =req.query.filterPriceRange
-    console.log(price)
+    const price = req.query.filterPriceRange;
+    console.log(price);
     const selectedCategory = req.body.category;
     console.log(selectedCategory);
     const newcata = await Category.findOne({ name: selectedCategory });
     // console.log(newcata)
     const id = newcata._id;
     console.log(id);
-    const product = await Product.find({ categoryId: id });
+    const product = await Product.find({ categoryId: id, isdeleted: false });
     console.log(product);
-    res.json(product)
+    res.json(product);
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -339,7 +386,7 @@ const couponManagment = async (req, res) => {
       return res.json({ message: "one coupon at a time" });
     }
 
-    if (carts.subtotal < coupon.minValue) {
+    if (carts.subtotal + carts.subtotal * 0.1 < coupon.minValue) {
       return res.json({
         message:
           "Coupon can only be applied on orders with a minimum price of " +
@@ -377,6 +424,12 @@ const removeCoupon = async (req, res) => {
     // console.log(removeid)
     const carts = await Cart.findOne({ user: userId });
 
+    if (removeid.coupon.length === 0) {
+      // Coupon array is empty, no need to remove anything
+      res.redirect("/cart");
+      return;
+    }
+
     const couponId = removeid.coupon[0];
     console.log(couponId);
     const coupon = await Coupon.findById(couponId);
@@ -396,14 +449,10 @@ const removeCoupon = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
 const addtoCart = async (req, res) => {
   try {
     const productId = req.params.id;
     const user = req.session.user_id;
-
-    // const { quantity } = req.body;
-    // console.log(req.body);
 
     let qty = 1;
 
@@ -415,16 +464,18 @@ const addtoCart = async (req, res) => {
       const existingItem = cart.items.find(
         (item) => item.product.toString() === productId
       );
-      // console.log(existingItem);
 
       if (existingItem) {
-        existingItem.quantity += qty;
-        existingItem.price = product.price * existingItem.quantity;
+        // Item already exists in the cart
+        // Update the quantity and price
+        
+        existingItem.price = product.offerprice || product.price;
       } else {
+        // Add a new item to the cart
         const newItem = {
           product: productId,
           quantity: qty,
-          price: product.price * qty,
+          price: product.offerprice || product.price,
         };
 
         cart.items.push(newItem);
@@ -432,13 +483,14 @@ const addtoCart = async (req, res) => {
 
       await cart.save();
     } else {
+      // Create a new cart
       const newCart = new Cart({
         user: user,
         items: [
           {
             product: productId,
             quantity: qty,
-            price: product.price * qty,
+            price: product.offerprice || product.price,
           },
         ],
       });
@@ -473,17 +525,16 @@ const updateCart = async (req, res) => {
       existingItem.quantity = quantity;
     }
 
-    // Update product stock
-    product.Stock -= existingItem.quantity - initialQuantity;
+    // Calculate item price based on offer price or regular price
+    const itemPrice = product.offerprice || product.price;
+    existingItem.price = existingItem.quantity * itemPrice;
+
+    // Update cart price based on the updated item prices
+    const total = cart.items.reduce((acc, item) => acc + item.price, 0);
+    cart.price = total;
 
     await cart.save();
     await product.save();
-
-    existingItem.price = existingItem.quantity * product.price;
-
-    const total = cart.items.reduce((acc, item) => acc + item.price, 0);
-    cart.price = total;
-    await cart.save();
 
     res.status(200).json({
       success: true,
@@ -495,6 +546,7 @@ const updateCart = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
 
 const deleteCart = async (req, res) => {
   try {
@@ -511,7 +563,9 @@ const deleteCart = async (req, res) => {
       return res.status(404).json({ error: "Product not found in cart" });
     }
 
-    const priceToRemove = existingItem.price;
+    const product = await Product.findById(productId);
+    const priceToRemove = product.offerprice || product.price;
+
     cart.items = cart.items.filter((item) => !item.product.equals(productId));
 
     const total = cart.items.reduce((acc, item) => acc + item.price, 0);
@@ -530,6 +584,7 @@ const deleteCart = async (req, res) => {
   }
 };
 
+
 const loadcheckout = async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -539,7 +594,7 @@ const loadcheckout = async (req, res) => {
     const price = await Cart.findOne({ user: userId });
     // console.log(user);
     // console.log(productId);
-    if (user && productId.items.length > 0) {
+    if (user && productId.items.length >= 0) {
       res.render("users/checkout.ejs", { user, price, productId, address });
     } else {
       res.redirect("/cart");
@@ -768,7 +823,9 @@ const loadorder = async (req, res) => {
   try {
     const userId = req.session.user_id;
     // console.log(userId);
-    const order = await Order.find({ user: userId }).populate("items.product");
+    const order = await Order.find({ user: userId })
+      .populate("items.product")
+      .sort({ _id: -1 });
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
 
@@ -840,30 +897,31 @@ const invoice = async (req, res) => {
         model: "Product",
       })
       .populate("user"); // Populate the "user" field
-    
+
     console.log("Order:", order);
-    
+
     if (!order) {
       throw new Error("Order not found");
     }
-    
+
     const user = order.user;
     console.log("User:", user);
-    
+
     if (!user) {
       throw new Error("User not found");
     }
-    
+
     const shippingAddressId = order.shippingAddress;
     const shippingAddress = user.addresses.find(
-      (address) => address._id && address._id.toString() === shippingAddressId.toString()
+      (address) =>
+        address._id && address._id.toString() === shippingAddressId.toString()
     );
     console.log("Shipping Address:", shippingAddress);
-    
+
     if (!shippingAddress) {
       throw new Error("Shipping address not found");
     }
-    
+
     const invoiceData = await generateInvoice(order, shippingAddress);
 
     // Set the appropriate headers for file download
@@ -878,7 +936,6 @@ const invoice = async (req, res) => {
   }
 };
 
-
 async function generateInvoice(order, shippingAddress) {
   const invoiceData = {
     currency: "USD",
@@ -887,9 +944,9 @@ async function generateInvoice(order, shippingAddress) {
     marginRight: 25,
     marginLeft: 25,
     marginBottom: 25,
-    "images": {
-      "logo": "https://drive.google.com/uc?export=download&id=1dMlX3qopqC_ONzgfxcjG2rxG4Ur-URcY" ,
-      "background": ""
+    images: {
+      logo: "https://drive.google.com/uc?export=download&id=1dMlX3qopqC_ONzgfxcjG2rxG4Ur-URcY",
+      background: "",
     },
     sender: {
       company: "WINKEL Ecommerce",
@@ -903,16 +960,15 @@ async function generateInvoice(order, shippingAddress) {
       city: shippingAddress.state,
       zip: shippingAddress.mobile,
     },
-    "information": {
-      "number": "INV" + Math.random().toString(36).substring(2),
-      "date":  new Date().toLocaleDateString(),
-     
-      }, 
+    information: {
+      number: "INV" + Math.random().toString(36).substring(2),
+      date: new Date().toLocaleDateString(),
+    },
     products: order.items.map((item) => ({
       quantity: item.quantity,
       description: item.product.name,
-      "tax-rate": 0, 
-      price: item.product.price
+      "tax-rate": 0,
+      price: order.totalPrice,
     })),
     bottomNotice: "Thank you for your business!",
   };
@@ -922,8 +978,6 @@ async function generateInvoice(order, shippingAddress) {
 
   return pdfBuffer;
 }
-
-
 
 const CreateOrder = async (req, res) => {
   try {
@@ -952,9 +1006,24 @@ const CreateOrder = async (req, res) => {
       (total, item) => total + item.price,
       0
     );
+
+    // if (user.coupon && user.coupon.length > 0) {
+    //   let totalDiscount = 0;
+    //   user.coupon.forEach((couponCode) => {
+    //     const appliedCoupon = coupons.find((coupon) => coupon.code === couponCode);
+    //     if (appliedCoupon) {
+    //       const couponDiscount = subtotal - appliedCoupon.discount;
+    //       totalDiscount += couponDiscount;
+    //     }
+    //   });
+    //   discount = totalDiscount;
+    // }
+
+
+
     const discount = subtotal * 0.1;
     // const shipping = 5;
-    const totalPrice = subtotal + discount;
+    const totalPrice = (subtotal + discount).toFixed();
 
     const paymentMethod = req.body.selectedMethod;
 
@@ -1071,7 +1140,7 @@ const verifyPayment = async (req, res) => {
       (total, item) => total + item.price,
       0
     );
-    const discount = (subtotal * 0.1).toFixed();
+    const discount = subtotal * 0.1;
 
     const totalPrice = subtotal + discount;
 
@@ -1272,6 +1341,23 @@ const cancelOrder = async (req, res) => {
   }
 };
 
+const wallet = async (req, res) => {
+  try {
+    const userId = req.session.user_id;
+    const user = await User.findById(userId);
+
+    const totalAmount = user.Wallet.reduce((total, item) => total + item.amount, 0);
+
+    res.render("users/wallet.ejs",{totalAmount})
+
+    
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
 module.exports = {
   loadhome,
   loadhomes,
@@ -1315,4 +1401,7 @@ module.exports = {
   shopFilter,
   verifyPayment,
   invoice,
+  resendOtp,
+  getPricefilter,
+  wallet
 };

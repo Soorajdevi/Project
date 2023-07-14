@@ -23,14 +23,10 @@ const offerSchema = new mongoose.Schema({
     required: true,
   },
 
-  // products: [{
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Product',
-  // }],
-
+ 
   isActive: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 

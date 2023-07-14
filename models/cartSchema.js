@@ -29,7 +29,10 @@ const cartSchema = new mongoose.Schema({
 
 // Calculate and update the subtotal whenever the cart items or quantities change
 cartSchema.pre('save', function(next) {
-  const subtotal = this.items.reduce((total, item) => total + item.price, 0);
+  const subtotal = this.items.reduce((total, item) => {
+    const price = item.offerprice || item.price;
+    return total + price;
+  }, 0);
   this.subtotal = subtotal;
   next();
 });

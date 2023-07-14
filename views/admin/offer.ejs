@@ -306,7 +306,7 @@
               <p class="sidebar-menu-title">Dash menu</p>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">
+              <a class="nav-link" href="/admin/admindashboard">
                 <i class="typcn typcn-device-desktop menu-icon"></i>
                 <span class="menu-title"
                   >Dashboard
@@ -318,7 +318,7 @@
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href=""
+                href="/admin/category"
                 aria-expanded="false"
                 aria-controls="ui-basic"
               >
@@ -467,7 +467,7 @@
               <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h4 class="card-title">Category</h4>
+                    <h4 class="card-title">Offer</h4>
                     <div class="table-responsive">
                       <table class="table">
                         <thead>
@@ -483,7 +483,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <% offer.forEach(function(item, index) { %>
+                          <% offers.forEach(function(item, index) { %>
                           <tr data-offer-id="<%=item._id%>">
                             <td><%= index + 1 %></td>
                             <td><%= item.offerName %></td>

@@ -7,7 +7,7 @@ const User = require('../models/userSchema')
       const userId = req.session.user_id
       const user= await User.findById(userId)
       if (user.is_block) {
-        req.session.user = null
+        req.session.user1 = null
         res.redirect('/login')
       } else {
         next()

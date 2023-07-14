@@ -232,7 +232,7 @@
                               </div>
                             </td>
                             <td style="font-weight: bold; color: black;">
-                              ₹<%= orderItem.totalPrice %>
+                              ₹<%= parseFloat(orderItem.totalPrice).toFixed() %>
                             </td>
                             <td style="color: black;">
                               <% if (orderItem.status === 'delivered') { %>

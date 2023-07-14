@@ -222,13 +222,14 @@
                   >100 <span style="color: #bbb">Rating</span></a
                 >
               </p>
-              <p class="text-left">
-                <a href="#" class="mr-2" style="color: #000"
-                  >500 <span style="color: #bbb">Sold</span></a
-                >
-              </p>
+              
             </div>
-            <p class="price"><span><%= item.price %></span></p>
+            <% if (item.offerprice) { %>
+              <p class="price"><span>₹<%= item.offerprice %></span></p>
+            <% } else { %>
+              <p class="price"><span>₹<%= item.price %></span></p>
+            <% } %>
+            
             <p><%= item.description %></p>
       
             <div class="row mt-4">
@@ -238,17 +239,12 @@
                     <div class="icon">
                       <span class="ion-ios-arrow-down"></span>
                     </div>
-                    <select name="" id="" class="form-control">
-                      <option value=""><%= item.Size %></option>
-                      <option value=""><%= item.Size %></option>
-                      <option value=""><%= item.Size %></option>
-                      <option value=""><%= item.Size %></option>
-                    </select>
+                    <p style="font-weight: bold;"><%= item.Color %> Color</p>
                   </div>
                 </div>
               </div>
               <div class="w-100"></div>
-              <div class="input-group col-md-6 d-flex mb-3">
+              <!-- <div class="input-group col-md-6 d-flex mb-3">
                 <span class="input-group-btn mr-2">
                   <button
                     type="button"
@@ -278,7 +274,7 @@
                     <i class="ion-ios-add"></i>
                   </button>
                 </span>
-              </div>
+              </div> -->
               <div class="w-100"></div>
               <div class="col-md-12">
                 <p style="color: #000"><%= item.Stock %> Piece Available</p>
@@ -797,16 +793,19 @@ window.addEventListener('load', function() {
   document.addEventListener('DOMContentLoaded', function() {
   const mainImage = document.getElementById('mainImage');
   const smallImages = document.querySelectorAll('.img-fluid.mx-3');
+  const result = document.getElementById('myresult'); // Get the result element
+
   mainImage.src = smallImages[0].src; // Set the initial main image to the first small image
+  result.style.backgroundImage = "url('" + mainImage.src + "')"; // Set the initial background image of the result element
 
   smallImages.forEach(function(smallImage) {
     smallImage.addEventListener('click', function() {
       mainImage.src = this.src; // Change the main image source to the clicked small image
+      result.style.backgroundImage = "url('" + mainImage.src + "')"; // Update the background image of the result element
     });
   });
 });
 
-  
 
 
     </script>

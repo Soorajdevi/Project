@@ -671,7 +671,7 @@
                             <div class="col-lg-4  align-items-center">
                               <span id="hero" style="color: red;"></span>
                               <p id="hero"></p>
-                                <button class="badge badge-info col-12 p-3" id="payButton" data-returnid="<%= returns._id %>"  style="font-size: 16px;">Payed : ₹<%= orders.totalPrice %><span id="total"></span> <br> <small>including charges</small> </button>
+                                <button class="badge badge-info col-12 p-3" id="payButton" data-returnid="<%= returns._id %>"  style="font-size: 16px;">Pay : ₹<%= orders.totalPrice %><span id="total"></span> <br> <small>including charges</small> </button>
                             </div>
                             
                         </div>
@@ -739,7 +739,7 @@ document.getElementById('payButton').addEventListener('click', function() {
   document.getElementById('payButton').innerText = 'Paid';
 
   const refundId = document.getElementById('payButton').getAttribute('data-returnid');
-
+console.log(refundId)
   fetch('/admin/repay', {
     method: 'POST',
     body: JSON.stringify({ refundId }),

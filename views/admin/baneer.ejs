@@ -405,7 +405,15 @@
               </a>
             
             </li>
-           
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="/admin/offer"
+              >
+                <i class="typcn typcn-document-text menu-icon"></i>
+                <span class="menu-title">Offers</span>
+              </a>
+            </li>
           </ul>
       
         </nav>
@@ -417,7 +425,7 @@
                 <div class="col-lg-12 grid-margin stretch-card">
                   <div class="card">
                     <div class="card-body">
-                      <h4 class="card-title">Category</h4>
+                      <h4 class="card-title">Banner</h4>
                       <div class="table-responsive">
                         <table class="table">
                           <thead>
@@ -435,7 +443,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <% banner.forEach(function(item, index) { %>
+                            <% banners.forEach(function(item, index) { %>
                               
                                 <tr>
                                   <td><%= index + 1 %></td>
@@ -474,7 +482,7 @@
                   
                 </div>
               </div>
-              <a href="product/addproduct" class="btn btn-success mb-4">Add Products</a>
+              <a href="/admin/addbanner" class="btn btn-success mb-4">Add Banner</a>
             </div>
 
 

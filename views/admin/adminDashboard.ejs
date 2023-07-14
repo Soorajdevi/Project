@@ -318,7 +318,7 @@
               <a
                 class="nav-link"
                 data-toggle="collapse"
-                href=""
+                href="/admin/category"
                 aria-expanded="false"
                 aria-controls="ui-basic"
               >
@@ -494,7 +494,7 @@
                                     <div class="stat-content">
                                         <div class="text-left dib">
                                           <i class="fa-sharp fa-solid fa-universal-access" style="color: greenyellow; width: 70px;"></i>
-                                            <div class="stat-text"><span class="count">3435</span></div>
+                                            <div class="stat-text"><span class="count"><%= totalSales %></span></div>
                                             <div class="stat-heading">Sales</div>
                                         </div>
                                     </div>
@@ -511,6 +511,7 @@
                                     </div>
                                     <div class="stat-content">
                                         <div class="text-left dib">
+                                          <i class="fa-regular fa-bags-shopping" style="color: greenyellow; width: 70px;"></i>
                                             <div class="stat-text"><span class="count"><%= count %></span></div>
                                             <div class="stat-heading">Orders</div>
                                         </div>
@@ -526,7 +527,7 @@
                         <!-- <label class="text-left" for="return-reason">Reason for Return:</label> -->
                         <select id="return-reason" class="form-control">
                           <option value="sales">Sales</option>
-                          <option value="return">Return</option>
+                          <!-- <option value="return">Return</option> -->
                           
                           <!-- Add more options as needed -->
                         </select>
@@ -558,6 +559,7 @@
                                     </div>
                                     <div class="stat-content" >
                                         <div class="text-left dib">
+                                          <i class="fa-sharp fa-solid d-flex fa-money-bill-transfer" style="color: greenyellow; width: 70px;"></i>
                                             <div class="stat-text"><span class="count"><%= usercount %></span></div>
                                             <div class="stat-heading">Clients</div>
                                         </div>
@@ -791,7 +793,7 @@ function hideDialog() {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
+        <!-- <script src="/assets/vendors/js/vendor.bundle.base.js"></script> -->
         <!-- endinject -->
         <!-- inject:js -->
         <script src="/assets/js/off-canvas.js"></script>

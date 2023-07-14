@@ -13,6 +13,8 @@ const mongoose = require("mongoose");
 const PDFDocument = require("pdfkit");
 const ExcelJS = require("exceljs");
 const fs = require("fs");
+const sharp = require("sharp");
+const path = require("path");
 
 const loadLogin = (req, res) => {
   try {
@@ -108,6 +110,17 @@ const addCategory = async (req, res) => {
     console.log(namenew);
     console.log(newdisc);
 
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${namenew}$`, "i") },
+    });
+
+    if (existingCategory) {
+      res.render("admin/AddCata.ejs", {
+        message: "Category already exists. Please use a unique name.",
+      });
+      return;
+    }
+
     const newCategory = new Category({ name: namenew, description: newdisc });
     await newCategory.save();
 
@@ -115,7 +128,7 @@ const addCategory = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("admin/AddCata.ejs", {
-      message: "Already Existing pls Use Uniqe",
+      message: "An error occurred while adding the category.",
     });
   }
 };
@@ -170,8 +183,7 @@ const deleteCategory = async (req, res) => {
     if (!softDelete) {
       return res.status(404).json({ error: "Product not found" });
     }
-
-    res.sendStatus(200);
+    res.json("Coupon deleted successfully");
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -229,8 +241,7 @@ const addProduct = async (req, res) => {
   try {
     const { name, description, price, categoryId, Color, Size, Stock } =
       req.body;
-
-    const imagepath = req.files.map((file) => file.path);
+    const images = req.files;
 
     const stocknum = 0;
     const pricenum = 0;
@@ -239,7 +250,23 @@ const addProduct = async (req, res) => {
       throw new Error("Stock or price is below the minimum threshold.");
     }
 
-    const newproduct = new Product({
+    const imagePaths = [];
+
+    for (const image of images) {
+      const imagePath = image.path;
+      const croppedImagePath = imagePath.replace(
+        /(\.[\w\d_-]+)$/i,
+        "-cropped$1"
+      );
+
+      await sharp(imagePath)
+        .resize(400, 600) // Adjust the desired dimensions for the cropped image
+        .toFile(croppedImagePath);
+
+      imagePaths.push(croppedImagePath);
+    }
+
+    const newProduct = new Product({
       name,
       description,
       categoryId,
@@ -247,20 +274,21 @@ const addProduct = async (req, res) => {
       Color,
       Size,
       Stock,
-      image: imagepath,
+      image: imagePaths,
     });
 
-    await newproduct.save();
+    await newProduct.save();
     res.redirect("/admin/product");
   } catch (error) {
     console.log(error.message);
     res.redirect("/admin/product/addproduct");
   }
 };
+
 const editProduct = async (req, res) => {
   try {
     const productid = req.params.id;
-    console.log(productid);
+    // console.log(productid);
     const productData = await Category.find({ deleted: false });
     const products = await Product.findById(productid);
     // console.log(products);
@@ -274,7 +302,6 @@ const editProduct = async (req, res) => {
     res.status(500).send("internal server error");
   }
 };
-
 const updateproduct = async (req, res) => {
   try {
     const productid = req.params.id;
@@ -282,10 +309,31 @@ const updateproduct = async (req, res) => {
       req.body;
 
     const product = await Product.findById(productid);
-    const imagepath = req.files.map((file) => file.path);
-    console.log(imagepath);
 
-    console.log(product);
+    const existingImages = req.body.existingImages || [];
+    const updatedImages = req.files ? req.files.map((file) => file.path) : [];
+
+    const croppedImages = [];
+
+    for (const image of updatedImages) {
+      const imagePath = image;
+      const croppedImagePath = imagePath.replace(
+        /(\.[\w\d_-]+)$/i,
+        "-cropped$1"
+      );
+      await sharp(imagePath).resize(400, 600).toFile(croppedImagePath);
+      croppedImages.push(croppedImagePath);
+    }
+
+    const updatedImagePathList =
+      updatedImages.length > 0 ? croppedImages : existingImages;
+
+    const stocknum = 0;
+    const pricenum = 0;
+
+    if (Stock < stocknum || price < pricenum) {
+      return res.json("Stock or price is below the minimum threshold.");
+    }
 
     const update = await Product.findByIdAndUpdate(
       productid,
@@ -298,13 +346,13 @@ const updateproduct = async (req, res) => {
           Color,
           Size,
           Stock,
-          image: imagepath,
+          image: updatedImagePathList,
         },
       },
       { new: true }
     );
 
-    res.redirect("/admin/product");
+    res.json("success");
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal server error");
@@ -325,7 +373,7 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    res.sendStatus(200);
+    res.json("Coupon deleted successfully");
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -361,15 +409,12 @@ const loadEdit = async (req, res) => {
   try {
     const orderid = req.params.id;
 
-    // console.log(orderid);
-
     const order = await Order.findById(orderid).populate("user");
     const shippingAddressId = order.shippingAddress;
     const shippingAddress = order.user.addresses.find(
       (address) => address._id.toString() === shippingAddressId.toString()
     );
 
-    // console.log(order);
     const price = await Cart.find();
 
     const orders = await Order.findById(orderid).populate("items.product");
@@ -395,7 +440,6 @@ const updateStatus = async (req, res) => {
       { $set: { status: status } },
       { new: true }
     );
-
     res.json(updatedOrder);
   } catch (error) {
     console.error(error);
@@ -480,7 +524,6 @@ const editCoupon = async (req, res) => {
     console.log(id);
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -489,6 +532,16 @@ const updateCoupon = async (req, res) => {
     const id = req.params.id;
     console.log(id);
     const { code, discount, validUntil, minValue } = req.body;
+    console.log(code, discount, validUntil, minValue);
+    const stocknum = 0;
+    const pricenum = 0;
+
+    if (discount < stocknum || minValue < pricenum) {
+      return res.json("discount or minValue is below the minimum threshold.");
+    }
+    if (discount > minValue) {
+      return res.json("it is not possible.");
+    }
 
     const coupon = await Coupon.findByIdAndUpdate(
       id,
@@ -503,24 +556,27 @@ const updateCoupon = async (req, res) => {
       { new: true }
     );
 
-    res.redirect("/admin/coupon");
+    return res.json("success");
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal Server Error");
+    return res.status(500).json("An error occurred.");
   }
 };
 
 const loadbanner = async (req, res) => {
   try {
-    const banner = await Banner.find();
+    const banners = await Banner.find();
 
-    for (const banners of banner) {
-      if (banners.createdAt > banners.ExpiryAt) {
-        banners.active = false;
+    for (const banner of banners) {
+      const currentDate = new Date();
+      const expiryAt = new Date(banner.ExpiryAt);
+
+      if (currentDate > expiryAt) {
+        banner.active = false;
       }
     }
 
-    res.render("admin/baneer.ejs", { banner });
+    res.render("admin/baneer.ejs", { banners });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -529,8 +585,8 @@ const loadbanner = async (req, res) => {
 
 const loadaddbanner = async (req, res) => {
   try {
-    const banner = await Banner.find();
-    res.render("admin/addBanner.ejs", { banner });
+    // const banner = await Banner.find();
+    res.render("admin/addBanner.ejs");
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -541,24 +597,42 @@ const addbanner = async (req, res) => {
   try {
     const { title, description, text, button, ExpiryAt } = req.body;
     // console.log(title, description, text, button, ExpiryAt);
+    const images = req.files;
 
-    const imagepath = req.files.map((file) => file.path);
+    const imagePaths = [];
+
+    for (const image of images) {
+      const imagePath = image.path;
+      console.log(imagePath);
+      const croppedImagePath = imagePath.replace(
+        /(\.[\w\d_-]+)$/i,
+        "-cropped$1"
+      );
+      console.log(croppedImagePath);
+      await sharp(imagePath).resize(500, 700).toFile(croppedImagePath);
+
+      imagePaths.push(croppedImagePath);
+    }
     // console.log(imagepath);
-
+    if (new Date(ExpiryAt) < new Date()) {
+      throw new Error("End date should be after the start date.");
+    }
     const newbanner = new Banner({
       title,
       description,
       text,
       button,
       ExpiryAt,
-      imagepath,
+      imagepath: imagePaths,
     });
 
     await newbanner.save();
-    res.status(200).send("banner added successfully");
+    res.redirect("/admin/banner");
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal Server Error");
+    res.render("admin/addBanner.ejs", {
+      message: "Expiray date not beolow the currrent date",
+    });
   }
 };
 
@@ -583,29 +657,50 @@ const updateBanner = async (req, res) => {
 
     const { title, button, description, ExpiryAt, text } = req.body;
 
-    const imagepaths = req.files.map((file) => file.path);
+    const existingImages = req.body.existingImages || [];
+    const updatedImages = req.files ? req.files.map((file) => file.path) : [];
 
-    const banner = await Banner.findByIdAndUpdate(
-      bannerid,
-      {
-        $set: {
-          title,
-          button,
-          description,
-          ExpiryAt,
-          text,
-          imagepath: imagepaths,
+    const croppedImages = [];
+
+    for (const image of updatedImages) {
+      const imagePath = image;
+      console.log(imagePath);
+      const croppedImagePath = imagePath.replace(
+        /(\.[\w\d_-]+)$/i,
+        "-cropped$1"
+      );
+      await sharp(imagePath).resize(500, 700).toFile(croppedImagePath);
+      croppedImages.push(croppedImagePath);
+    }
+
+    const updatedImagePathList =
+      updatedImages.length > 0 ? croppedImages : existingImages;
+
+    if (new Date(ExpiryAt) < new Date()) {
+      res.json("Expiray date not beolow the currrent date");
+    } else {
+      const banner = await Banner.findByIdAndUpdate(
+        bannerid,
+        {
+          $set: {
+            title,
+            button,
+            description,
+            ExpiryAt,
+            text,
+            imagepath: updatedImagePathList,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true }
+      );
 
-    res.redirect("/admin/banner");
+      res.json("success");
+    }
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal Server Error");
   }
 };
+
 const loadreturn = async (req, res) => {
   try {
     const returns = await Return.find();
@@ -696,7 +791,20 @@ const editreturn = async (req, res) => {
         { $set: { status: "returned" } },
         { new: true }
       );
+
+      
     }
+
+    const orders = await Order.findById(orderId);
+      const orderItems = orders.items;
+      for (const item of orderItems) {
+        const product = await Product.findById(item.product);
+        console.log(product)
+        // product.Stock += item.quantity;
+        const stockRemins = Number(product.Stock)
+        product.Stock = stockRemins + item.quantity
+        await product.save();
+      }
 
     res.json(updatedOrder);
   } catch (error) {
@@ -707,12 +815,18 @@ const editreturn = async (req, res) => {
 
 const rePayamount = async (req, res) => {
   try {
-    const returnId = req.body.returnId;
+    const returnId = req.body.refundId;
+    // console.log(returnId)
     const returns = await Return.findById(returnId);
+    // console.log(returns)
     const orderId = returns.orderId;
+    // console.log(orderId)
     const order = await Order.findById(orderId);
+    // console.log(order)
     const userId = returns.userId;
+    // console.log(userId)
     const userData = await User.findById(userId);
+    // console.log(userData)
 
     const amount = order.totalPrice;
     console.log(amount);
@@ -735,8 +849,18 @@ const rePayamount = async (req, res) => {
 
 const offerManagment = async (req, res) => {
   try {
-    const offer = await Offer.find();
-    res.render("admin/offer.ejs", { offer });
+    const offers = await Offer.find();
+
+    for (const offer of offers) {
+      const currentDate = new Date();
+      const expiryAt = new Date(offer.endDate);
+
+      if (currentDate > expiryAt) {
+        offer.isActive = false;
+      }
+    }
+
+    res.render("admin/offer.ejs", { offers });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -801,7 +925,7 @@ const addofferManagment = async (req, res) => {
     const categoryId = req.body.categoryId;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
-    console.log(offerName,offerValue)
+    console.log(offerName, offerValue);
 
     const offer = new Offer({
       offerName: offerName,
@@ -812,12 +936,12 @@ const addofferManagment = async (req, res) => {
     });
 
     if (new Date(startDate) > new Date(endDate)) {
-        res.json( "End date should be after the start date." );
+      res.json("End date should be after the start date.");
     } else {
       await offer.save();
-      res.json("sucess")
+      res.json("sucess");
     }
-    console.log("sucess")
+    console.log("sucess");
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -828,10 +952,10 @@ const editOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
     // console.log(offerId);
-
+    const product = await Category.find({ deleted: false });
     const offer = await Offer.findById(offerId);
 
-    res.render("admin/editOffer.ejs", { offer });
+    res.render("admin/editOffer.ejs", { offer, product });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -841,25 +965,29 @@ const editOffer = async (req, res) => {
 const updateOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
-    const { offerName, offerValue, offerType, startDate, endDate } = req.body;
-    console.log(offerId, offerName, offerValue, offerType, startDate, endDate);
+    console.log(offerId);
+    const { offerName, offerValue, categoryId, startDate, endDate } = req.body;
+    console.log(offerName, offerValue, categoryId, startDate, endDate);
 
-    const updatedOffer = await Offer.findByIdAndUpdate(
-      offerId,
-      {
-        $set: {
-          offerName,
-          offerValue,
-          offerType,
-          startDate,
-          endDate,
+    if (new Date(startDate) > new Date(endDate)) {
+      res.json("End date should be after the start date.");
+    } else {
+      const updatedOffer = await Offer.findByIdAndUpdate(
+        offerId,
+        {
+          $set: {
+            offerName,
+            offerValue,
+            categoryId,
+            startDate,
+            endDate,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true }
+      );
 
-    console.log(updatedOffer);
-    res.redirect("/admin/offer");
+      res.json("success");
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -912,6 +1040,7 @@ const loadAdmin = async (req, res) => {
     const count = await Order.countDocuments();
     console.log(count);
 
+    const totalSales = await Order.countDocuments({ status: "delivered" });
     const usercount = await User.countDocuments();
 
     const currentDate = new Date();
@@ -933,77 +1062,18 @@ const loadAdmin = async (req, res) => {
         },
       },
       {
-        $sort: { _id: 1 }, // Sort the data by the day of the week (1: Sunday, 2: Monday, etc.)
+        $sort: { _id: 1 },
       },
     ]);
 
     console.log(weeklyData);
 
-    // const monthlyData = [];
-
-    // for (let month = 0; month < 12; month++) {
-    //   const startOfMonth = new Date();
-    //   startOfMonth.setFullYear(new Date().getFullYear(), month, 1);
-    //   startOfMonth.setHours(0, 0, 0, 0);
-
-    //   const endOfMonth = new Date(startOfMonth);
-    //   endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
-    //   endOfMonth.setHours(23, 59, 59, 999);
-
-    //   const result = await Order.aggregate([
-    //     {
-    //       $match: {
-    //         status: "delivered",
-    //         createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-    //       },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: null,
-    //         totalSales: { $sum: "$totalPrice" },
-    //       },
-    //     },
-    //   ]);
-
-    //   const totalSales = result.length > 0 ? result[0].totalSales : 0;
-    //   monthlyData.push(totalSales);
-    // }
-
-    // console.log(monthlyData);
-
-    // const startYear = 2018;
-    // const currentYear = new Date().getFullYear();
-    // const yearlyData = [];
-
-    // for (let year = startYear; year <= currentYear; year++) {
-    //   const startOfYear = new Date(year, 0, 1);
-    //   startOfYear.setHours(0, 0, 0, 0);
-
-    //   const endOfYear = new Date(year, 11, 31);
-    //   endOfYear.setHours(23, 59, 59, 999);
-
-    //   const result = await Order.aggregate([
-    //     {
-    //       $match: {
-    //         status: "delivered",
-    //         createdAt: { $gte: startOfYear, $lte: endOfYear },
-    //       },
-    //     },
-    //     {
-    //       $group: {
-    //         _id: null,
-    //         totalSales: { $sum: "$totalPrice" },
-    //       },
-    //     },
-    //   ]);
-
-    //   const totalSales = result.length > 0 ? result[0].totalSales : 0;
-    //   yearlyData.push(totalSales);
-    // }
-
-    // console.log(yearlyData);
-
-    res.render("admin/adminDashboard.ejs", { revenue, count, usercount });
+    res.render("admin/adminDashboard.ejs", {
+      revenue,
+      count,
+      usercount,
+      totalSales,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -1131,77 +1201,61 @@ const salesReport = async (req, res) => {
     );
 
     if (fileFormat === "pdf") {
-      // Generate PDF report
       const doc = new PDFDocument();
 
-      // Set the table header styles
       const tableHeaderStyle = {
         fontSize: 14,
         bold: true,
       };
 
-      // Set the table content styles
       const tableContentStyle = {
         fontSize: 10,
       };
 
-      // Set the initial Y position for the table
       let yPos = 100;
 
-      // Draw the table header
+      // Drawing the starting horizontal line
+      doc.moveTo(50, yPos).lineTo(500, yPos).stroke();
+
+      yPos += 5; 
+
       doc.font("Helvetica-Bold").fontSize(12);
       doc.text("Order ID", 50, yPos, { continued: true });
       doc.text("Customer Name", 150, yPos);
       doc.text("Total Amount", 400, yPos);
-      doc
-        .moveTo(50, yPos + 15)
-        .lineTo(400, yPos + 15)
-        .stroke(); // Draw horizontal line
-      yPos += 25;
 
-      // Draw the table content
+      yPos += 20; // Increase the vertical position after the table headers
+
       doc.font("Helvetica").fontSize(10);
       orders.forEach((order) => {
         doc.text(order._id.toString(), 50, yPos, { continued: true });
         doc.text(order.user.name, 150, yPos);
         doc.text(order.totalPrice, 400, yPos);
-        // doc.text(order.paymentMethod, 700, yPos);
+
         doc
           .moveTo(50, yPos + 15)
           .lineTo(500, yPos + 15)
-          .stroke(); // Draw horizontal line
+          .stroke();
         yPos += 25;
-
-        // order.items.forEach((item) => {
-        //   doc.text(item.product.name, 50, yPos, { continued: true });
-        //   doc.text(item.quantity, 200, yPos);
-        //   doc.text(item.price, 300, yPos);
-        //   doc.moveTo(50, yPos + 15).lineTo(400, yPos + 15).stroke(); // Draw horizontal line
-        //   yPos += 25;
-        // });
 
         doc
           .moveTo(50, yPos - 50)
           .lineTo(50, yPos)
-          .stroke(); // Draw left vertical line
+          .stroke();
         doc
           .moveTo(200, yPos - 50)
           .lineTo(200, yPos)
-          .stroke(); // Draw middle vertical line
+          .stroke();
         doc
           .moveTo(400, yPos - 50)
           .lineTo(400, yPos)
-          .stroke(); // Draw right vertical line
+          .stroke();
+
+        doc
+          .moveTo(500, yPos - 50)
+          .lineTo(500, yPos)
+          .stroke();
       });
-
-      // Draw bottom horizontal line
-      doc.moveTo(50, yPos).lineTo(400, yPos).stroke();
-
-      // Draw the final vertical line to close the table content
-      doc
-        .moveTo(400, yPos - 50)
-        .lineTo(400, yPos)
-        .stroke();
 
       doc.end();
 

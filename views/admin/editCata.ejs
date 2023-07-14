@@ -421,19 +421,19 @@
           <div class="container bg-light shadow-sm " style=" border-radius: 14px;">
               <div class="row p-5">
                 <h3 class="mr-3">Category</h3>
-                <input class="" type="text" style="width: 90%; border-radius: 10px;">
+                <input class="" type="text" style="width: 90%; border-radius: 10px;" required>
               </div>
           </div>
           <div class="container bg-light shadow-sm mt-4" style=" border-radius: 14px; height: 32em;">
               <div class="row p-5 " >
                 <div class="col-md-6">
                   <h3 class="mr-3">Category</h3>
-                <input class="" type="text" style="width: 90%; height: 40px;  " name="name" value="<%=category.name%>">
+                <input class="" type="text" style="width: 90%; height: 40px;  " name="name" value="<%=category.name%>" required>
                 </div>
                 
                 <div class="col-md-12 mt-5">
                   <h3 class="mr-3">Description</h3>
-                <input class="" type="text" style="width: 90%; height: 12em;  " name="description" value="<%=category.description%>">
+                <input class="" type="text" style="width: 90%; height: 12em;  " name="description" value="<%=category.description%>" required>
                 </div>
                 <button class="btn btn-success mt-3 ml-3" type="submit">Update Category</button>
               </div>
