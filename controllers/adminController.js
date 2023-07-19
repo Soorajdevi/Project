@@ -398,7 +398,20 @@ const loadorder = async (req, res) => {
     // const cart = await Cart.findById(cartId);
 
     const orders = await Order.find();
-    res.render("admin/order.ejs", { orders });
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const totalProducts = orders.length;
+    const totalPages = Math.ceil(totalProducts / limit);
+    const paginatedorder = orders.slice(skip, skip + limit);
+    res.render("admin/order.ejs", {
+      orders: paginatedorder,
+      totalPages: totalPages,
+      currentPage: page,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -791,20 +804,18 @@ const editreturn = async (req, res) => {
         { $set: { status: "returned" } },
         { new: true }
       );
-
-      
     }
 
     const orders = await Order.findById(orderId);
-      const orderItems = orders.items;
-      for (const item of orderItems) {
-        const product = await Product.findById(item.product);
-        console.log(product)
-        // product.Stock += item.quantity;
-        const stockRemins = Number(product.Stock)
-        product.Stock = stockRemins + item.quantity
-        await product.save();
-      }
+    const orderItems = orders.items;
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      console.log(product);
+      // product.Stock += item.quantity;
+      const stockRemins = Number(product.Stock);
+      product.Stock = stockRemins + item.quantity;
+      await product.save();
+    }
 
     res.json(updatedOrder);
   } catch (error) {
@@ -1035,38 +1046,11 @@ const loadAdmin = async (req, res) => {
       { $project: { _id: 0, totalPrice: 1 } },
     ]);
     const revenue = totalRevenue[0].totalPrice.toFixed(0);
-    console.log(revenue);
 
     const count = await Order.countDocuments();
-    console.log(count);
 
     const totalSales = await Order.countDocuments({ status: "delivered" });
     const usercount = await User.countDocuments();
-
-    const currentDate = new Date();
-    const startOfWeek = new Date(currentDate);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() - 6);
-
-    const weeklyData = await Order.aggregate([
-      {
-        $match: {
-          status: "delivered",
-          createdAt: { $gte: endOfWeek, $lte: startOfWeek },
-        },
-      },
-      {
-        $group: {
-          _id: { $dayOfWeek: "$createdAt" },
-          totalSales: { $sum: "$totalPrice" },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-
-    console.log(weeklyData);
 
     res.render("admin/adminDashboard.ejs", {
       revenue,
@@ -1079,6 +1063,7 @@ const loadAdmin = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 const weekData = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -1100,7 +1085,7 @@ const weekData = async (req, res) => {
         },
       },
       {
-        $sort: { _id: 1 }, // Sort the data by the day of the week (1: Sunday, 2: Monday, etc.)
+        $sort: { _id: 1 },
       },
     ]);
 
@@ -1142,7 +1127,7 @@ const monthData = async (req, res) => {
       const totalSales = result.length > 0 ? result[0].totalSales : 0;
       monthlyData.push(totalSales);
     }
-    // console.log(monthData);
+
     res.json(monthlyData);
   } catch (error) {
     console.log(error.message);
@@ -1181,13 +1166,104 @@ const yearData = async (req, res) => {
       const totalSales = result.length > 0 ? result[0].totalSales : 0;
       yearlyData.push(totalSales);
     }
-    // console.log(yearData);
+
     res.json(yearlyData);
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
   }
 };
+
+const ordermonthData = async (req, res) => {
+  try {
+    const monthlyorderData = [];
+
+    for (let month = 0; month < 12; month++) {
+      const startOfMonth = new Date();
+      startOfMonth.setFullYear(new Date().getFullYear(), month, 1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const endOfMonth = new Date(startOfMonth);
+      endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
+      endOfMonth.setHours(23, 59, 59, 999);
+
+      const result = await Order.find({
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+      }).countDocuments();
+
+      const monthlyOrders = {
+        month: month + 1,
+        totalOrders: result,
+      };
+
+      monthlyorderData.push(monthlyOrders);
+    }
+
+    res.json(monthlyorderData);
+    console.log(monthlyorderData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const yearorderData = async (req, res) => {
+  try {
+    const startYear = 2018;
+    const currentYear = new Date().getFullYear();
+    const yearOrderData = [];
+
+    for (let year = startYear; year <= currentYear; year++) {
+      const orderCount = await Order.find({
+        createdAt: {
+          $gte: new Date(year, 0, 1),
+          $lte: new Date(year, 11, 31, 23, 59, 59, 999),
+        },
+      }).countDocuments();
+
+      yearOrderData.push({
+        year: year,
+        totalOrders: orderCount,
+      });
+    }
+
+    res.json(yearOrderData);
+    console.log(yearOrderData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const weeklyOrderData = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const endOfWeek = new Date(currentDate);
+    endOfWeek.setDate(endOfWeek.getDate() - 6);
+
+    const weeklyData = [];
+
+    for (let week = currentDate; week >= endOfWeek; week.setDate(week.getDate() - 7)) {
+      const startOfWeek = new Date(week);
+      startOfWeek.setDate(startOfWeek.getDate() - 6);
+
+      const orderCount = await Order.find({
+        createdAt: { $gte: startOfWeek, $lte: week }
+      }).countDocuments();
+
+      weeklyData.push({
+        week: startOfWeek,
+        totalOrders: orderCount
+      });
+    }
+
+    res.json(weeklyData);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 
 const salesReport = async (req, res) => {
   try {
@@ -1217,7 +1293,7 @@ const salesReport = async (req, res) => {
       // Drawing the starting horizontal line
       doc.moveTo(50, yPos).lineTo(500, yPos).stroke();
 
-      yPos += 5; 
+      yPos += 5;
 
       doc.font("Helvetica-Bold").fontSize(12);
       doc.text("Order ID", 50, yPos, { continued: true });
@@ -1363,4 +1439,7 @@ module.exports = {
   changePrice,
   salesReport,
   deletesOffer,
+  ordermonthData,
+  yearorderData,
+  weeklyOrderData
 };

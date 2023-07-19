@@ -4,18 +4,21 @@ const router = express.Router({ body: true });
 const userController = require("../controllers/userController");
 const auth = require("../middleware/userAuth");
 
-router.get("/", auth.notLoggd, userController.loadhome);
+router.get("/", auth.notLoggd, userController.loadhomes);
 
 router.get("/login", auth.notLoggd, userController.loginpage);
 router.post("/login",   auth.notLoggd, userController.verifylogin);
 
-router.get("/home",auth.isLogged ,userController.loadhomes);
+router.get("/home" ,userController.loadhomes);
 
 router.get("/signUp", auth.notLoggd, userController.loadsignUp);
 router.post("/signUp", userController.insertUser);
 
 router.get("/forget",userController.forgetPassword)
 
+router.get("/shop",  userController.getShop);
+
+router.post("/shop",  userController.getShop);
 
 
 // router.get("/forget",userController.forgetVerify)
@@ -37,34 +40,37 @@ router.post("/resend", userController.resendOtp);
 
 router.get("/logout", userController.userLogout);
 
-router.get("/shop",auth.isLogged,  userController.getShop);
-
-router.post("/shop",auth.isLogged,  userController.getShop);
-
-router.get("/shopprice",auth.isLogged,userController.getPricefilter)
-
-router.post("/shopfilter",auth.isLogged,  userController.shopFilter);
 
 
+router.get("/shopprice",userController.getPricefilter)
+
+router.post("/shopfilter",  userController.shopFilter);
 
 
-router.get("/single/:id", auth.isLogged, userController.getSingle);
+router.get("/single/:id",  userController.getSingle);
+
+
+
+router.get("/searcProduct",userController.getShop)
+
+router.post("/searchProduct",userController.searchProduct)
+
+
 
 // router.get("/single", userController.single);
 
 router.use(auth.isLogged)
+
 router.get("/cart",userController.loadCart)
 
 router.post("/cart",userController.couponManagment)
 
 router.get("/removecoupon",userController.removeCoupon)
-
 router.get("/addCart/:id",userController.addtoCart)
 
 router.post("/addCart",userController.updateCart)
 
 router.delete("/cart/:id",userController.deleteCart)
-
 
 
 router.get("/checkout",userController.loadcheckout)
@@ -85,9 +91,7 @@ router.get("/order",userController.loadorder)
 router.post("/order",userController.cancelOrder)
 
 
- router.get("/searcProduct",userController.getShop)
 
- router.post("/searchProduct",userController.searchProduct)
 
 
 router.get("/editorder",userController.editOrder)
@@ -124,5 +128,9 @@ router.get("/manageaddress/delete/:id",userController.deleteAddress)
 
 router.get("/wallet",userController.wallet)
 
+router.get('*', function(req, res){
+    console.log('404ing');
+    res.render('users/404.ejs');
+  });
 
 module.exports = router;

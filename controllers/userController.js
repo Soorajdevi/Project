@@ -40,9 +40,12 @@ const loadhome = async (req, res) => {
 const loadhomes = async (req, res) => {
   try {
     const products = await Product.find({ isdeleted: false });
+    const isLoggedIn = req.session.user_id ? true : false;
     const user = await User.find({ is_block: false });
     const banner = await Banner.find();
-    res.render("users/home.ejs", { products, user, banner });
+    const username = req.session.user_id;
+    const userData =await User.findById(username)
+    res.render("users/home.ejs", { products, user, banner,isLoggedIn,userData });
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
@@ -151,7 +154,7 @@ const insertUser = async (req, res) => {
     });
 
     const userData = await user.save();
-    // console.log(userData);
+    
 
     if (userData) {
       const otp = generateOTP();
@@ -482,7 +485,17 @@ const addtoCart = async (req, res) => {
       }
 
       await cart.save();
-    } else {
+    } 
+    // else if(!req.session.user_id){
+    //   const generateId = Math.floor(100000 + Math.random() * 900000);
+    //   req.session.user_id = generateId
+
+    //   if(req.session.user_id){
+        
+    //   }
+    // }
+    
+    else {
       // Create a new cart
       const newCart = new Cart({
         user: user,
@@ -1007,20 +1020,13 @@ const CreateOrder = async (req, res) => {
       0
     );
 
-    // if (user.coupon && user.coupon.length > 0) {
-    //   let totalDiscount = 0;
-    //   user.coupon.forEach((couponCode) => {
-    //     const appliedCoupon = coupons.find((coupon) => coupon.code === couponCode);
-    //     if (appliedCoupon) {
-    //       const couponDiscount = subtotal - appliedCoupon.discount;
-    //       totalDiscount += couponDiscount;
-    //     }
-    //   });
-    //   discount = totalDiscount;
-    // }
-
-
-
+    if (user.coupon && user.coupon.length > 0) {
+      const appliedCoupon = coupons.find((coupon) => coupon.code === user.coupon[0]);
+      if (appliedCoupon) {
+        subtotal -= appliedCoupon.discount;
+      }
+    }
+    
     const discount = subtotal * 0.1;
     // const shipping = 5;
     const totalPrice = (subtotal + discount).toFixed();

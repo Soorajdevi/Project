@@ -576,7 +576,7 @@
                   <div class="d-flex justify-content-end mb-3">
                    <button onclick="showDialog()">Reports</button>
                   </div>
-                  <div class="  col-lg-8 grid-margin stretch-card">
+                  <div class="  col-lg-6 grid-margin stretch-card">
                     <div class="card">
                       
                       <div class="card-body">
@@ -589,6 +589,21 @@
                           </select>
                         </div>
                         <canvas id="lineCharts"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 grid-margin stretch-card">
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title">Order Data</h4>
+                        <div class="d-flex justify-content-end mb-3">
+                          <select id="timeRangeDropdowns">
+                            <option value="weekly">Weekly</option>
+                            <option value="month">Monthly</option>
+                            <option value="year">Yearly</option>
+                          </select>
+                        </div>
+                        <canvas id="barChart"></canvas>
                       </div>
                     </div>
                   </div>
@@ -605,6 +620,7 @@
               </div>
             </footer>
        
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         <script>
 
@@ -632,8 +648,10 @@
 
 timeRangeDropdown.addEventListener('change', async () => {
   const selectedTimeRange = timeRangeDropdown.value;
+  console.log(selectedTimeRange)
   let labels = [];
   let data = [];
+  console.log(data)
 
   if (selectedTimeRange === 'weekly') {
     const weeklyData = await fetchWeeklyData();
@@ -680,23 +698,24 @@ async function fetchMonthlyData() {
 
 async function fetchYearlyData() {
   const response = await fetch('/admin/year');
-  const data = await response.json();
-  return data;
+  const datas = await response.json();
+  return datas;
 }
 
-// Function to update the chart with new data
-function updateChart(data) {
-  // Retrieve the chart element
-  const lineChart = document.getElementById('lineCharts');
 
-  // Check if the chart already exists
+function updateChart(data) {
+  
+  const lineChart = document.getElementById('lineCharts');
+  console.log(lineChart)
+
+
   if (lineChart) {
-    // Create the chart using Chart.js library
-    new Chart(lineCharts, {
+    
+    new Chart(lineChart, {
       type: 'line',
       data: data,
       options: {
-        // Add any additional options and styling as needed
+        
       }
     });
   }
@@ -708,9 +727,82 @@ function getMonthLabels(currentMonth) {
   return monthLabels.slice(0, currentMonth + 1);
 }
 // Define the default time range
+const timeRangeDropdowns = document.getElementById('timeRangeDropdowns');
+timeRangeDropdowns.addEventListener('change', async () => {
+  const selectedTimeRange = timeRangeDropdowns.value;
+  console.log(selectedTimeRange);
+
+  let labels = [];
+  console.log(labels);
+  let data = [];
+  console.log(data);
+
+  if (selectedTimeRange === 'month') {
+    const monthlyData = await fetchMonDatas();
+    const currentMonth = new Date().getMonth();
+    labels = getMonthLabels(currentMonth);
+    data = monthlyData.slice(0, currentMonth + 1);
+  }else if(selectedTimeRange === 'year'){
+    const yearlyData = await fetchYearlyData();
+    labels = ['2018', '2019', '2020', '2021', '2022', '2023'];
+    data = yearlyData;
+  }
+
+  const barChartData = {
+    labels: labels,
+    datasets: [{
+      label: '# of Orders',
+      data: data,
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1,
+      fill: false
+    }]
+  };
+
+  updatebarChart(barChartData);
+});
+
+async function fetchMonDatas() {
+  const response = await fetch('/admin/ordermonth');
+  const data = await response.json();
+
+  const ordersData = data.map(item => item.totalOrders);
+
+  return ordersData;
+}
+async function fetchYearlyData() {
+  const response = await fetch('/admin/orderyear');
+  const datas = await response.json();
+  console.log(datas)
+//   const ordersData = datas.map(item => item.totalOrders);
+// console.log(ordersData)
+  return datas;
+}
+function updatebarChart(data) {
+  const barChart = document.getElementById('barChart');
+  console.log(barChart);
+  
+  if (barChart) {
+    new Chart(barChart, {
+      type: 'bar',
+      data: data,
+      options: {
+        // Additional chart options
+      }
+    });
+  }
+}
+
+// Function to get the labels for the monthly data
+function getMonthLabels(currentMonth) {
+  const monthLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  return monthLabels.slice(0, currentMonth + 1);
+}
+
+//   </script>
 
 
-  </script>
 <script>
 function showDialog() {
         
@@ -755,27 +847,27 @@ function hideDialog() {
         downloadLink.href = url;
         downloadLink.download = 'sales_report.pdf';
 
-        // Trigger the download
+       
         downloadLink.click();
 
         // Clean up the temporary URL
         URL.revokeObjectURL(url);
       } else if (fileFormat === 'excel') {
-        // Create a Blob from the Excel file data
+     
         const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-        // Create a temporary URL for the Blob
+   
         const url = URL.createObjectURL(blob);
 
-        // Create a temporary link element
+
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
         downloadLink.download = 'sales_report.xlsx';
 
-        // Trigger the download
+        
         downloadLink.click();
 
-        // Clean up the temporary URL
+     
         URL.revokeObjectURL(url);
       }
     },
@@ -791,7 +883,7 @@ function hideDialog() {
 </script>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <!-- <script src="/assets/vendors/js/vendor.bundle.base.js"></script> -->
         <!-- endinject -->

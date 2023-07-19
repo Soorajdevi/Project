@@ -114,5 +114,12 @@ router.get("/month",adminController.monthData)
 
 router.get("/year",adminController.yearData)
 
+router.get("/ordermonth",adminController.ordermonthData)
+
+router.get("/orderyear",adminController.yearData)
+
+router.get("/orderweek",adminController.weeklyOrderData)
+
+
 
 module.exports = router;

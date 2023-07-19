@@ -75,18 +75,30 @@
               <a href="/profile" class="nav-link">Profile</a>
             </li>
            
-        
+          
+            
             <li class="nav-item cta cta-colored">
               <a href="/cart" class="nav-link"
                 ><span class="icon-shopping_cart"></span>[0]</a
               >
             </li>
-
+            <li class="nav-item cta cta-colored mt-3 text-center">
+              <% if (isLoggedIn) { %>
+                <!-- Show user name -->
+                <%= userData.name %>
+              <% } else { %>
+                <!-- Show login icon -->
+                <a href="/login" class="nav-link">
+                  <span class="icon-user"></span>
+                </a>
+              <% } %>
+            </li>
+            
            
-            <li class="nav-item cta cta-colored">
+            <!-- <li class="nav-item cta cta-colored">
               <button  class="btn btn-primary mx-3 mt-3 "
               onclick="location.href='/logout'">Logout</button>
-            </li>
+            </li> -->
           </ul>
         </div>
       </div>
